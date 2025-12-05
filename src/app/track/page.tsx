@@ -6,6 +6,7 @@ import { Search, ArrowRight, Package, Clock, CheckCircle, Mail, Loader2, AlertCi
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n';
 
 interface LetterStatus {
   id: string;
@@ -20,31 +21,8 @@ interface LetterStatus {
   sealColor: string;
 }
 
-const statusConfig = {
-  sealed: {
-    icon: Package,
-    color: 'text-amber-500',
-    bgColor: 'bg-amber-500/10',
-    label: 'Sealed & In Transit',
-    description: 'Your letter is safely sealed and waiting to be opened.',
-  },
-  delivered: {
-    icon: Mail,
-    color: 'text-blue-500',
-    bgColor: 'bg-blue-500/10',
-    label: 'Delivered',
-    description: 'Your letter has been delivered and is ready to be opened.',
-  },
-  opened: {
-    icon: CheckCircle,
-    color: 'text-green-500',
-    bgColor: 'bg-green-500/10',
-    label: 'Opened',
-    description: 'This letter has been opened and read.',
-  },
-};
-
 export default function TrackPage() {
+  const { t } = useI18n();
   const [id, setId] = useState('');
   const [letter, setLetter] = useState<LetterStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,12 +30,36 @@ export default function TrackPage() {
   const [searched, setSearched] = useState(false);
   const router = useRouter();
 
+  const statusConfig = {
+    sealed: {
+      icon: Package,
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
+      label: t.inbox.status.inTransit,
+      description: t.features.timeLockedDesc,
+    },
+    delivered: {
+      icon: Mail,
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+      label: t.letter.delivered,
+      description: t.inbox.status.ready,
+    },
+    opened: {
+      icon: CheckCircle,
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10',
+      label: t.letter.opened,
+      description: t.letter.openedAt,
+    },
+  };
+
   const handleTrack = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedId = id.trim();
     
     if (!trimmedId) {
-      setError('Please enter a tracking ID');
+      setError(t.track.placeholder);
       return;
     }
 
@@ -71,11 +73,11 @@ export default function TrackPage() {
       
       if (!response.ok) {
         if (response.status === 404) {
-          setError('Letter not found. Please check the tracking ID.');
+          setError(t.track.notFound);
         } else if (response.status === 403) {
-          setError('You do not have permission to view this letter.');
+          setError(t.errors.unauthorized);
         } else {
-          setError('Something went wrong. Please try again.');
+          setError(t.errors.somethingWentWrong);
         }
         return;
       }
@@ -83,11 +85,11 @@ export default function TrackPage() {
       const data = await response.json();
       setLetter(data.data);
     } catch {
-      setError('Failed to track letter. Please check your connection.');
+      setError(t.errors.networkError);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -100,120 +102,89 @@ export default function TrackPage() {
     });
   };
 
-  const getTimeUntilUnlock = (unlockAt: string) => {
-    const now = new Date();
-    const unlock = new Date(unlockAt);
-    const diff = unlock.getTime() - now.getTime();
-
-    if (diff <= 0) return 'Ready to open';
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (days > 0) return `${days}d ${hours}h remaining`;
-    if (hours > 0) return `${hours}h ${minutes}m remaining`;
-    return `${minutes}m remaining`;
-  };
-
-  const StatusIcon = letter ? statusConfig[letter.status].icon : Package;
-
   return (
-    <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20">
-        <Link 
-          href="/"
-          className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-        >
+    <main className="min-h-screen bg-black text-white p-6 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-900/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-900/20 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="relative z-10 max-w-2xl mx-auto pt-20">
+        <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors">
           <ArrowLeft className="w-4 h-4" />
-          <span>Back</span>
+          {t.common.back}
         </Link>
-      </nav>
 
-      {/* Grid Background */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-
-      <div className="z-10 w-full max-w-lg space-y-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-serif font-bold mb-4 tracking-tight">Track Letter</h1>
-          <p className="text-gray-500 text-lg">Enter your tracking ID to check the status of your letter.</p>
+          <h1 className="text-4xl font-serif font-bold mb-4">{t.track.title}</h1>
+          <p className="text-gray-400">{t.track.subtitle}</p>
         </motion.div>
 
-        <motion.form 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          onSubmit={handleTrack} 
-          className="relative group"
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white/5 border border-white/10 rounded-2xl p-2 mb-8 backdrop-blur-md"
         >
-          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
-          <div className="relative flex items-center bg-black rounded-xl border border-white/10 p-2">
-            <Search className="w-6 h-6 text-gray-500 ml-3 flex-shrink-0" />
-            <input
-              type="text"
-              value={id}
-              onChange={(e) => {
-                setId(e.target.value);
-                setError(null);
-              }}
-              placeholder="Enter tracking ID..."
-              className="flex-1 bg-transparent border-none text-white placeholder:text-gray-600 focus:ring-0 px-4 py-3 outline-none font-mono min-w-0"
-              aria-label="Tracking ID"
-              disabled={loading}
-            />
+          <form onSubmit={handleTrack} className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+              <input
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                placeholder={t.track.placeholder}
+                className="w-full bg-transparent border-none text-white placeholder:text-gray-600 pl-12 pr-4 py-4 focus:outline-none focus:ring-0"
+              />
+            </div>
             <Button 
               type="submit" 
-              size="icon" 
-              className="rounded-lg w-10 h-10 bg-white text-black hover:bg-gray-200 flex-shrink-0"
               disabled={loading}
-              aria-label="Track letter"
+              className="h-auto px-8 bg-white text-black hover:bg-gray-200 rounded-xl"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <ArrowRight className="w-4 h-4" />
-              )}
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : t.track.trackButton}
             </Button>
-          </div>
-        </motion.form>
+          </form>
+        </motion.div>
 
-        {/* Error Message */}
         <AnimatePresence mode="wait">
           {error && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex items-center justify-center gap-2 text-red-400 bg-red-500/10 rounded-lg p-4"
+              className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3 text-red-400"
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <span>{error}</span>
+              <p>{error}</p>
             </motion.div>
           )}
-        </AnimatePresence>
 
-        {/* Letter Status Card */}
-        <AnimatePresence mode="wait">
           {letter && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="bg-zinc-900/80 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden"
+              className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden backdrop-blur-md"
             >
               {/* Status Header */}
-              <div className={`p-6 ${statusConfig[letter.status].bgColor}`}>
-                <div className="flex items-center justify-center gap-3">
-                  <StatusIcon className={`w-8 h-8 ${statusConfig[letter.status].color}`} />
-                  <div className="text-left">
-                    <h2 className="text-xl font-semibold text-white">
+              <div className={`p-6 border-b border-white/10 ${statusConfig[letter.status].bgColor}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full bg-black/20 ${statusConfig[letter.status].color}`}>
+                    {(() => {
+                      const Icon = statusConfig[letter.status].icon;
+                      return <Icon className="w-6 h-6" />;
+                    })()}
+                  </div>
+                  <div>
+                    <h3 className={`font-bold text-lg ${statusConfig[letter.status].color}`}>
                       {statusConfig[letter.status].label}
-                    </h2>
+                    </h3>
                     <p className="text-sm text-white/60">
                       {statusConfig[letter.status].description}
                     </p>
@@ -221,98 +192,46 @@ export default function TrackPage() {
                 </div>
               </div>
 
-              {/* Details */}
-              <div className="p-6 space-y-4">
-                {/* Sender/Recipient */}
-                <div className="grid grid-cols-2 gap-4 text-left">
-                  <div>
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-1">From</p>
-                    <p className="text-white font-medium">{letter.senderName || 'Anonymous'}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-white/40 uppercase tracking-wider mb-1">To</p>
-                    <p className="text-white font-medium">{letter.recipientName || 'Anonymous'}</p>
-                  </div>
-                </div>
-
-                <hr className="border-white/10" />
-
-                {/* Timeline */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
-                      <Package className="w-5 h-5 text-white/60" />
+              {/* Timeline */}
+              <div className="p-6 space-y-8">
+                <div className="relative pl-8 border-l-2 border-white/10 space-y-8">
+                  {/* Created */}
+                  <div className="relative">
+                    <div className="absolute -left-[39px] p-1 bg-black rounded-full border-2 border-white/20">
+                      <div className="w-3 h-3 bg-white/50 rounded-full" />
                     </div>
-                    <div className="text-left flex-1">
-                      <p className="text-sm text-white">Sent</p>
-                      <p className="text-xs text-white/50">{formatDate(letter.createdAt)}</p>
-                    </div>
+                    <p className="text-sm text-gray-400 mb-1">{t.track.created}</p>
+                    <p className="font-medium">{formatDate(letter.createdAt)}</p>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-white/60" />
+                  {/* Unlock Time */}
+                  <div className="relative">
+                    <div className={`absolute -left-[39px] p-1 bg-black rounded-full border-2 ${
+                      letter.status === 'sealed' ? 'border-amber-500 animate-pulse' : 'border-white/20'
+                    }`}>
+                      <div className={`w-3 h-3 rounded-full ${
+                        letter.status === 'sealed' ? 'bg-amber-500' : 'bg-white/50'
+                      }`} />
                     </div>
-                    <div className="text-left flex-1">
-                      <p className="text-sm text-white">Unlock Date</p>
-                      <p className="text-xs text-white/50">{formatDate(letter.unlockAt)}</p>
-                    </div>
-                    <span className="text-xs text-amber-500 font-medium">
-                      {getTimeUntilUnlock(letter.unlockAt)}
-                    </span>
+                    <p className="text-sm text-gray-400 mb-1">{t.inbox.unlockTime}</p>
+                    <p className="font-medium">{formatDate(letter.unlockAt)}</p>
                   </div>
 
+                  {/* Opened (if applicable) */}
                   {letter.openedAt && (
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                        <CheckCircle className="w-5 h-5 text-green-500" />
+                    <div className="relative">
+                      <div className="absolute -left-[39px] p-1 bg-black rounded-full border-2 border-green-500">
+                        <div className="w-3 h-3 bg-green-500 rounded-full" />
                       </div>
-                      <div className="text-left flex-1">
-                        <p className="text-sm text-white">Opened</p>
-                        <p className="text-xs text-white/50">{formatDate(letter.openedAt)}</p>
-                      </div>
+                      <p className="text-sm text-gray-400 mb-1">{t.letter.openedAt}</p>
+                      <p className="font-medium">{formatDate(letter.openedAt)}</p>
                     </div>
                   )}
-                </div>
-
-                <hr className="border-white/10" />
-
-                {/* Actions */}
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => router.push(`/letter/${letter.id}`)}
-                    className="flex-1"
-                    variant="default"
-                  >
-                    View Letter
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setLetter(null);
-                      setId('');
-                      setSearched(false);
-                    }}
-                    variant="outline"
-                  >
-                    New Search
-                  </Button>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Empty state after search */}
-        {searched && !letter && !error && !loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-gray-500 text-center py-8"
-          >
-            <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <p>No results found</p>
-          </motion.div>
-        )}
       </div>
     </main>
   );

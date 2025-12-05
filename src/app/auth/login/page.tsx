@@ -8,8 +8,10 @@ import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n';
 
 export default function LoginPage() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -27,14 +29,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error('Invalid email or password');
+        toast.error(t.auth.invalidCredentials);
       } else {
-        toast.success('Welcome back!');
+        toast.success(t.auth.welcomeBack);
         router.push('/inbox');
         router.refresh();
       }
     } catch (error) {
-      toast.error('Something went wrong');
+      toast.error(t.errors.somethingWentWrong);
     } finally {
       setIsLoading(false);
     }
@@ -60,15 +62,15 @@ export default function LoginPage() {
       >
         <div className="text-center">
           <Link href="/">
-            <h1 className="text-5xl font-serif font-bold tracking-tight mb-2">PISMA</h1>
+            <h1 className="text-5xl font-serif font-bold tracking-tight mb-2">{t.home.title}</h1>
           </Link>
-          <p className="text-gray-400">Sign in to your account</p>
+          <p className="text-gray-400">{t.auth.loginSubtitle}</p>
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-md space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Email</label>
+              <label className="text-sm text-gray-400">{t.auth.email}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
@@ -83,7 +85,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Password</label>
+              <label className="text-sm text-gray-400">{t.auth.password}</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input
@@ -106,7 +108,7 @@ export default function LoginPage() {
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Sign In <ArrowRight className="ml-2 w-4 h-4" />
+                  {t.auth.loginButton} <ArrowRight className="ml-2 w-4 h-4" />
                 </>
               )}
             </Button>
@@ -117,7 +119,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-transparent text-gray-500">or continue with</span>
+              <span className="px-2 bg-transparent text-gray-500">{t.auth.orContinueWith}</span>
             </div>
           </div>
 
@@ -145,14 +147,14 @@ export default function LoginPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            Google
+            {t.auth.google}
           </Button>
         </div>
 
         <p className="text-center text-gray-500">
-          Don&apos;t have an account?{' '}
+          {t.auth.noAccount}{' '}
           <Link href="/auth/register" className="text-white hover:underline">
-            Sign up
+            {t.auth.registerButton}
           </Link>
         </p>
       </motion.div>

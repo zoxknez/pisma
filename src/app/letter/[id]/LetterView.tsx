@@ -7,10 +7,11 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { WaxSeal } from '@/components/WaxSeal';
-import { AgingEffect, getAgingDescription } from '@/components/AgingEffect';
+import { AgingEffect, useAgingDescription } from '@/components/AgingEffect';
 import { ReactionPicker, ReactionDisplay } from '@/components/ReactionPicker';
 import { QRCodeGenerator } from '@/components/QRCodeGenerator';
 import { useCountdown } from '@/hooks';
+import { useI18n } from '@/lib/i18n';
 import type { LetterWithReactions, SealDesign } from '@/types';
 
 interface LetterViewProps {
@@ -18,6 +19,8 @@ interface LetterViewProps {
 }
 
 export default function LetterView({ letter }: LetterViewProps) {
+  const { t, language } = useI18n();
+  const { getDescription } = useAgingDescription();
   const { data: session } = useSession();
   const { timeLeft, isExpired, formatted } = useCountdown(letter.unlockAt);
   const [isOpened, setIsOpened] = useState(false);
@@ -41,21 +44,21 @@ export default function LetterView({ letter }: LetterViewProps) {
       if (!res.ok) {
         const data = await res.json();
         if (data.code === 'FORBIDDEN') {
-          setOpenError('You are not authorized to open this letter');
+          setOpenError(t.letter.unauthorized);
           setIsOpened(false);
           setShowContent(false);
-          toast.error('You are not authorized to open this letter');
+          toast.error(t.letter.unauthorized);
         }
       }
     } catch (error) {
       console.error('Failed to mark letter as opened:', error);
     }
-  }, [letter.id, isLocked]);
+  }, [letter.id, isLocked, t]);
 
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(window.location.href);
-    toast.success("Link copied to clipboard");
-  }, []);
+    toast.success(t.letter.linkCopied);
+  }, [t]);
 
   const toggleAudio = useCallback(() => {
     if (audioRef.current) {
@@ -70,7 +73,7 @@ export default function LetterView({ letter }: LetterViewProps) {
 
   const handleReaction = useCallback(async (emoji: string) => {
     if (!session?.user) {
-      toast.error('Please sign in to react');
+      toast.error(t.letter.signInToReact);
       return;
     }
 
@@ -86,15 +89,15 @@ export default function LetterView({ letter }: LetterViewProps) {
           ...prev.filter(r => r.userName !== session.user?.name),
           { emoji, userName: session.user?.name || undefined }
         ]);
-        toast.success('Reaction added!');
+        toast.success(t.letter.reactionAdded);
       } else {
         const data = await res.json();
-        toast.error(data.error || 'Failed to add reaction');
+        toast.error(data.error || t.letter.reactionFailed);
       }
     } catch (error) {
-      toast.error('Failed to add reaction');
+      toast.error(t.letter.reactionFailed);
     }
-  }, [letter.id, session]);
+  }, [letter.id, session, t]);
 
   // Type-safe seal design
   const sealDesign = letter.sealDesign as SealDesign;
@@ -155,9 +158,9 @@ export default function LetterView({ letter }: LetterViewProps) {
             </div>
 
             <div>
-              <h1 className="text-4xl font-serif font-bold mb-2">In Transit</h1>
+              <h1 className="text-4xl font-serif font-bold mb-2">{t.stats.inTransit}</h1>
               <p className="text-gray-500">
-                {letter.senderName ? `From ${letter.senderName}` : 'This letter is currently sealed.'}
+                {letter.senderName ? `${t.letter.letterFrom} ${letter.senderName}` : t.letter.sealedUntil}
               </p>
             </div>
 
@@ -167,12 +170,12 @@ export default function LetterView({ letter }: LetterViewProps) {
               </div>
               <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                 <Clock className="w-4 h-4" />
-                <span>Time remaining</span>
+                <span>{t.letter.unlocksIn}</span>
               </div>
             </div>
 
             <Button variant="outline" onClick={copyLink} className="gap-2">
-              <Share2 className="w-4 h-4" /> Share Tracking Link
+              <Share2 className="w-4 h-4" /> {t.letter.share}
             </Button>
           </motion.div>
         ) : !showContent ? (
@@ -221,9 +224,9 @@ export default function LetterView({ letter }: LetterViewProps) {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center"
               >
-                <p className="text-gray-400 font-serif italic mb-2">Tap to open</p>
+                <p className="text-gray-400 font-serif italic mb-2">{t.letter.openLetter}</p>
                 {letter.senderName && (
-                  <p className="text-gray-500 text-sm">From: {letter.senderName}</p>
+                  <p className="text-gray-500 text-sm">{t.letter.letterFrom}: {letter.senderName}</p>
                 )}
               </motion.div>
             )}
@@ -257,13 +260,13 @@ export default function LetterView({ letter }: LetterViewProps) {
                   <div className="flex justify-between items-start mb-8 border-b border-current/20 pb-4">
                     <div>
                       {letter.senderName && (
-                        <p className="font-serif text-sm mb-1">From: <strong>{letter.senderName}</strong></p>
+                        <p className="font-serif text-sm mb-1">{t.letter.from}: <strong>{letter.senderName}</strong></p>
                       )}
                       {letter.recipientName && (
-                        <p className="font-serif text-sm">To: <strong>{letter.recipientName}</strong></p>
+                        <p className="font-serif text-sm">{t.letter.to}: <strong>{letter.recipientName}</strong></p>
                       )}
                       <p className="font-serif text-xs opacity-60 mt-2">
-                        {new Date(letter.createdAt).toLocaleDateString('en-US', {
+                        {new Date(letter.createdAt).toLocaleDateString(language === 'sr' ? 'sr-RS' : 'en-US', {
                           weekday: 'long',
                           year: 'numeric',
                           month: 'long',
@@ -280,7 +283,7 @@ export default function LetterView({ letter }: LetterViewProps) {
                       />
                       {letter.agingEnabled && (
                         <span className="text-xs opacity-50">
-                          {getAgingDescription(new Date(letter.createdAt))}
+                          {getDescription(new Date(letter.createdAt))}
                         </span>
                       )}
                     </div>
@@ -315,7 +318,7 @@ export default function LetterView({ letter }: LetterViewProps) {
                         >
                           {isPlayingAudio ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
                         </Button>
-                        <span className="text-sm font-medium">Voice Message</span>
+                        <span className="text-sm font-medium">{t.letter.voiceMessage}</span>
                       </div>
                     )}
                   </div>
@@ -343,10 +346,10 @@ export default function LetterView({ letter }: LetterViewProps) {
                 />
               )}
               <Button variant="outline" onClick={copyLink} className="gap-2">
-                <Share2 className="w-4 h-4" /> Share
+                <Share2 className="w-4 h-4" /> {t.letter.share}
               </Button>
               <Button variant="outline" onClick={() => setShowQRCode(!showQRCode)} className="gap-2">
-                <QrCode className="w-4 h-4" /> QR Code
+                <QrCode className="w-4 h-4" /> {t.features.qrCode}
               </Button>
             </div>
 

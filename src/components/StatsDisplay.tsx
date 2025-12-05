@@ -6,6 +6,7 @@ import {
   Mail, Users, Send, Clock, Heart, TrendingUp, 
   Sparkles, Globe, Award, Zap 
 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
 // Animated counter hook
 function useAnimatedCounter(target: number, duration: number = 2000) {
@@ -101,16 +102,10 @@ function StatCard({ icon, label, value, suffix = '', color, delay = 0 }: StatCar
 
 // Live activity indicator
 function LiveActivity() {
+  const { t } = useI18n();
   const [activities, setActivities] = useState<string[]>([]);
 
-  const sampleActivities = [
-    '💌 Pismo poslato u Beograd',
-    '📬 Novo pismo stiglo u Zagreb',
-    '❤️ Neko je reagovao na pismo',
-    '✉️ Pismo čeka otključavanje',
-    '🎉 Novi korisnik se pridružio',
-    '💝 Ljubavno pismo u tranzitu',
-  ];
+  const sampleActivities = t.stats.activities;
 
   useEffect(() => {
     const addActivity = () => {
@@ -121,7 +116,7 @@ function LiveActivity() {
     addActivity();
     const interval = setInterval(addActivity, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [sampleActivities]);
 
   return (
     <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10">
@@ -130,7 +125,7 @@ function LiveActivity() {
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
           <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500" />
         </span>
-        <span className="text-white/80 text-sm font-medium">Uživo aktivnost</span>
+        <span className="text-white/80 text-sm font-medium">{t.stats.liveActivity}</span>
       </div>
       <AnimatePresence mode="popLayout">
         {activities.map((activity, index) => (
@@ -151,11 +146,12 @@ function LiveActivity() {
 
 // World map visualization (simplified)
 function GlobalReach() {
+  const { t } = useI18n();
   return (
     <div className="bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10">
       <div className="flex items-center gap-2 mb-3">
         <Globe className="w-4 h-4 text-blue-400" />
-        <span className="text-white/80 text-sm font-medium">Globalni doseg</span>
+        <span className="text-white/80 text-sm font-medium">{t.stats.globalReach}</span>
       </div>
       <div className="relative h-24 overflow-hidden">
         {/* Animated dots representing letter destinations */}
@@ -179,7 +175,7 @@ function GlobalReach() {
           />
         ))}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-white/40 text-xs">Pisma putuju širom sveta</span>
+          <span className="text-white/40 text-xs">{t.stats.lettersTravel}</span>
         </div>
       </div>
     </div>
@@ -205,6 +201,7 @@ interface Stats {
 }
 
 export function PlatformStats({ className = '' }: PlatformStatsProps) {
+  const { t } = useI18n();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -253,28 +250,28 @@ export function PlatformStats({ className = '' }: PlatformStatsProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <StatCard
           icon={<Users className="w-6 h-6" />}
-          label="Aktivnih korisnika"
+          label={t.stats.activeUsers}
           value={data.overview.totalUsers}
           color="#8B5CF6"
           delay={0}
         />
         <StatCard
           icon={<Mail className="w-6 h-6" />}
-          label="Poslato pisama"
+          label={t.stats.lettersSent}
           value={data.overview.totalLetters}
           color="#EC4899"
           delay={100}
         />
         <StatCard
           icon={<Send className="w-6 h-6" />}
-          label="Isporučeno danas"
+          label={t.stats.deliveredToday}
           value={data.overview.lettersDeliveredToday}
           color="#10B981"
           delay={200}
         />
         <StatCard
           icon={<Clock className="w-6 h-6" />}
-          label="U tranzitu"
+          label={t.stats.inTransit}
           value={data.overview.lettersInTransit}
           color="#F59E0B"
           delay={300}
@@ -298,6 +295,7 @@ interface UserStatsProps {
 }
 
 export function UserStats({ lettersSent, lettersReceived, reactionsReceived, className = '' }: UserStatsProps) {
+  const { t } = useI18n();
   const sentCount = useAnimatedCounter(lettersSent);
   const receivedCount = useAnimatedCounter(lettersReceived);
   const reactionsCount = useAnimatedCounter(reactionsReceived);
@@ -310,21 +308,21 @@ export function UserStats({ lettersSent, lettersReceived, reactionsReceived, cla
     >
       <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
         <Award className="w-5 h-5 text-amber-400" />
-        Tvoja statistika
+        {t.stats.yourStats}
       </h3>
       
       <div className="grid grid-cols-3 gap-4">
         <div className="text-center">
           <div className="text-2xl font-bold text-amber-400">{sentCount}</div>
-          <div className="text-xs text-white/60">Poslato</div>
+          <div className="text-xs text-white/60">{t.stats.sent}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-emerald-400">{receivedCount}</div>
-          <div className="text-xs text-white/60">Primljeno</div>
+          <div className="text-xs text-white/60">{t.stats.received}</div>
         </div>
         <div className="text-center">
           <div className="text-2xl font-bold text-pink-400">{reactionsCount}</div>
-          <div className="text-xs text-white/60">Reakcija</div>
+          <div className="text-xs text-white/60">{t.stats.reactionsReceived}</div>
         </div>
       </div>
 
@@ -336,7 +334,7 @@ export function UserStats({ lettersSent, lettersReceived, reactionsReceived, cla
           className="mt-4 bg-yellow-500/10 rounded-lg p-2 flex items-center gap-2"
         >
           <Zap className="w-4 h-4 text-yellow-400" />
-          <span className="text-xs text-yellow-400">Pismonoša veteran! 🏆</span>
+          <span className="text-xs text-yellow-400">{t.stats.veteran} 🏆</span>
         </motion.div>
       )}
     </motion.div>

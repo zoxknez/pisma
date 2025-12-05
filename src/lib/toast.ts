@@ -69,15 +69,4 @@ export const showPromise = <T,>(
   return toast.promise(promise, messages);
 };
 
-// Letter-specific toasts
-export const letterToasts = {
-  sending: () => showLoading('Sealing your letter...'),
-  sent: () => showSuccess('Letter sealed and sent! ✉️'),
-  opened: () => showSuccess('Letter opened successfully! 📬'),
-  deleted: () => showSuccess('Letter deleted'),
-  reactionAdded: () => showSuccess('Reaction added! 💝'),
-  copied: () => showSuccess('Tracking ID copied to clipboard'),
-  uploadError: () => showError('Failed to upload letter. Please try again.'),
-  networkError: () => showError('Network error. Please check your connection.'),
-  authRequired: () => showWarning('Please sign in to continue'),
-};
+

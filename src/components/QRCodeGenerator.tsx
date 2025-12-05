@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Download, Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n';
 
 interface QRCodeGeneratorProps {
   letterId: string;
@@ -13,6 +14,7 @@ interface QRCodeGeneratorProps {
 }
 
 export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGeneratorProps) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
   const letterUrl = typeof window !== 'undefined' 
@@ -27,14 +29,14 @@ export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGener
       a.href = url;
       a.download = `pisma-qr-${letterId}.png`;
       a.click();
-      toast.success('QR code downloaded!');
+      toast.success(t.qr.downloaded);
     }
   };
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(letterUrl);
     setCopied(true);
-    toast.success('Link copied!');
+    toast.success(t.qr.linkCopied);
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -44,7 +46,7 @@ export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGener
       animate={{ opacity: 1, scale: 1 }}
       className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md space-y-4"
     >
-      <h3 className="text-sm font-medium text-gray-300 text-center">Physical Letter QR Code</h3>
+      <h3 className="text-sm font-medium text-gray-300 text-center">{t.qr.title}</h3>
       
       <div 
         ref={qrRef}
@@ -68,8 +70,7 @@ export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGener
       </div>
 
       <p className="text-xs text-gray-500 text-center">
-        Print this QR code and attach it to your physical letter. <br />
-        The recipient can scan it to view the digital version.
+        {t.qr.description}
       </p>
 
       <div className="flex gap-2 justify-center">
@@ -79,7 +80,7 @@ export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGener
           size="sm"
           className="gap-2 border-white/20 hover:bg-white/10"
         >
-          <Download className="w-4 h-4" /> Download
+          <Download className="w-4 h-4" /> {t.qr.download}
         </Button>
         <Button
           onClick={handleCopy}
@@ -88,7 +89,7 @@ export function QRCodeGenerator({ letterId, sealColor = '#8B0000' }: QRCodeGener
           className="gap-2 border-white/20 hover:bg-white/10"
         >
           {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          {copied ? 'Copied!' : 'Copy Link'}
+          {copied ? t.qr.copied : t.qr.copyLink}
         </Button>
       </div>
     </motion.div>

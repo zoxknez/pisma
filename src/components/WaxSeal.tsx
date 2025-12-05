@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { SealDesign } from '@/types';
+import { useI18n } from '@/lib/i18n';
 
 interface WaxSealProps {
   color: string;
@@ -13,26 +14,8 @@ interface WaxSealProps {
   ariaLabel?: string;
 }
 
-const sealColors = [
-  { name: 'Crimson', value: '#8B0000' },
-  { name: 'Burgundy', value: '#722F37' },
-  { name: 'Navy', value: '#1B3A57' },
-  { name: 'Forest', value: '#2D5A3D' },
-  { name: 'Royal Purple', value: '#4B2D73' },
-  { name: 'Gold', value: '#B8860B' },
-  { name: 'Black', value: '#1a1a1a' },
-  { name: 'Rose', value: '#C08081' },
-];
-
-const sealDesigns = [
-  { name: 'Classic', value: 'classic' },
-  { name: 'Heart', value: 'heart' },
-  { name: 'Star', value: 'star' },
-  { name: 'Crown', value: 'crown' },
-  { name: 'Letter', value: 'letter' },
-];
-
 export function WaxSeal({ color, design, initials, size = 'md', onClick, selected, ariaLabel }: WaxSealProps) {
+  const { t } = useI18n();
   const sizeClasses = {
     sm: 'w-12 h-12',
     md: 'w-20 h-20',
@@ -74,7 +57,7 @@ export function WaxSeal({ color, design, initials, size = 'md', onClick, selecte
       default:
         return (
           <span className={`font-serif font-bold ${fontSizes[size]} opacity-90`} aria-hidden="true">
-            {initials ? initials.substring(0, 2).toUpperCase() : 'SEALED'}
+            {initials ? initials.substring(0, 2).toUpperCase() : t.letter.sealed.toUpperCase()}
           </span>
         );
     }
@@ -157,22 +140,43 @@ export function WaxSealSelector({
   onDesignChange,
   onInitialsChange,
 }: WaxSealSelectorProps) {
+  const { t } = useI18n();
+
+  const sealColors = [
+    { name: t.sealColors.crimson, value: '#8B0000' },
+    { name: t.sealColors.burgundy, value: '#722F37' },
+    { name: t.sealColors.navy, value: '#1B3A57' },
+    { name: t.sealColors.forest, value: '#2D5A3D' },
+    { name: t.sealColors.royalPurple, value: '#4B2D73' },
+    { name: t.sealColors.gold, value: '#B8860B' },
+    { name: t.sealColors.black, value: '#1a1a1a' },
+    { name: t.sealColors.rose, value: '#C08081' },
+  ];
+
+  const sealDesigns = [
+    { name: t.sealDesigns.classic, value: 'classic' },
+    { name: t.sealDesigns.heart, value: 'heart' },
+    { name: t.sealDesigns.star, value: 'star' },
+    { name: t.sealDesigns.crown, value: 'crown' },
+    { name: t.sealDesigns.letter, value: 'letter' },
+  ];
+
   return (
     <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md space-y-6">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-gray-300" id="wax-seal-label">Wax Seal</label>
+        <label className="text-sm font-medium text-gray-300" id="wax-seal-label">{t.write.waxSeal}</label>
         <WaxSeal 
           color={selectedColor} 
           design={selectedDesign as SealDesign} 
           initials={initials}
           size="md"
-          ariaLabel="Wax seal preview"
+          ariaLabel={t.write.waxSeal}
         />
       </div>
 
       {/* Color Selection */}
       <div className="space-y-2" role="group" aria-labelledby="seal-color-label">
-        <label className="text-xs text-gray-500" id="seal-color-label">Seal Color</label>
+        <label className="text-xs text-gray-500" id="seal-color-label">{t.write.sealColor}</label>
         <div className="flex flex-wrap gap-2">
           {sealColors.map((c) => (
             <button
@@ -183,7 +187,7 @@ export function WaxSealSelector({
               }`}
               style={{ backgroundColor: c.value }}
               title={c.name}
-              aria-label={`${c.name} seal color`}
+              aria-label={`${c.name} ${t.write.sealColor}`}
               aria-pressed={selectedColor === c.value}
             />
           ))}
@@ -192,7 +196,7 @@ export function WaxSealSelector({
 
       {/* Design Selection */}
       <div className="space-y-2" role="group" aria-labelledby="seal-design-label">
-        <label className="text-xs text-gray-500" id="seal-design-label">Seal Design</label>
+        <label className="text-xs text-gray-500" id="seal-design-label">{t.write.sealDesign}</label>
         <div className="flex gap-2" role="radiogroup">
           {sealDesigns.map((d) => (
             <button
@@ -215,7 +219,7 @@ export function WaxSealSelector({
       {/* Initials Input */}
       {(selectedDesign === 'classic' || selectedDesign === 'letter') && (
         <div className="space-y-2">
-          <label className="text-xs text-gray-500" htmlFor="seal-initials">Custom Initials (max 2)</label>
+          <label className="text-xs text-gray-500" htmlFor="seal-initials">{t.write.sealInitials}</label>
           <input
             id="seal-initials"
             type="text"
@@ -232,5 +236,3 @@ export function WaxSealSelector({
     </div>
   );
 }
-
-export { sealColors, sealDesigns };

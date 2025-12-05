@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { useI18n } from '@/lib/i18n';
 
 interface AgingEffectProps {
   createdAt: Date;
@@ -138,16 +139,22 @@ export function AgingEffect({ createdAt, openedAt, paperType, agingEnabled, chil
   );
 }
 
-// Utility function to get aging description
-export function getAgingDescription(createdAt: Date): string {
-  const now = new Date();
-  const hoursElapsed = (now.getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
+// Hook to get aging description
+export function useAgingDescription() {
+  const { t } = useI18n();
 
-  if (hoursElapsed < 1) return 'Fresh ink';
-  if (hoursElapsed < 24) return 'Recently written';
-  if (hoursElapsed < 72) return 'Paper settling';
-  if (hoursElapsed < 168) return 'Gently aged';
-  if (hoursElapsed < 720) return 'Naturally weathered';
-  if (hoursElapsed < 2160) return 'Time-worn patina';
-  return 'Antique character';
+  const getDescription = (createdAt: Date): string => {
+    const now = new Date();
+    const hoursElapsed = (now.getTime() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
+
+    if (hoursElapsed < 1) return t.aging.freshInk;
+    if (hoursElapsed < 24) return t.aging.recentlyWritten;
+    if (hoursElapsed < 72) return t.aging.paperSettling;
+    if (hoursElapsed < 168) return t.aging.gentlyAged;
+    if (hoursElapsed < 720) return t.aging.naturallyWeathered;
+    if (hoursElapsed < 2160) return t.aging.timeWornPatina;
+    return t.aging.antiqueCharacter;
+  };
+
+  return { getDescription };
 }

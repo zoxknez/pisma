@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mic, Square, Play, Pause, Trash2, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/i18n';
 
 interface AudioRecorderProps {
   onRecordingComplete: (audioBlob: Blob) => void;
@@ -12,6 +13,7 @@ interface AudioRecorderProps {
 }
 
 export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete }: AudioRecorderProps) {
+  const { t } = useI18n();
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(existingAudioUrl || null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -126,9 +128,9 @@ export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete 
     <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md space-y-4">
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-          <Volume2 className="w-4 h-4" /> Voice Message
+          <Volume2 className="w-4 h-4" /> {t.audio.title}
         </label>
-        <span className="text-xs text-gray-500">Optional</span>
+        <span className="text-xs text-gray-500">{t.audio.optional}</span>
       </div>
 
       <AnimatePresence mode="wait">
@@ -158,7 +160,7 @@ export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete 
               {isRecording ? (
                 <>
                   <span className="text-red-500 font-mono animate-pulse">
-                    ● REC {formatTime(recordingTime)}
+                    ● {t.audio.recording} {formatTime(recordingTime)}
                   </span>
                   <Button
                     type="button"
@@ -177,13 +179,13 @@ export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete 
                   variant="outline"
                   className="gap-2 border-white/20 hover:bg-white/10"
                 >
-                  <Mic className="w-4 h-4" /> Record Message
+                  <Mic className="w-4 h-4" /> {t.audio.record}
                 </Button>
               )}
             </div>
 
             <p className="text-xs text-gray-500 text-center">
-              Record a personal voice message to accompany your letter
+              {t.audio.desc}
             </p>
           </motion.div>
         ) : (

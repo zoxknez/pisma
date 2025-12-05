@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Image as ImageIcon, Camera, FileImage, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface ImageDropZoneProps {
   onFileSelect: (file: File) => void;
@@ -22,6 +23,7 @@ export function ImageDropZone({
   disabled = false,
   className,
 }: ImageDropZoneProps) {
+  const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,7 +149,7 @@ export function ImageDropZone({
               className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 bg-green-500/20 backdrop-blur-sm rounded-full border border-green-500/30"
             >
               <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-xs text-green-300 font-medium">Ready</span>
+              <span className="text-xs text-green-300 font-medium">{t.write.dropZone.ready}</span>
             </motion.div>
 
             {/* File info */}
@@ -157,7 +159,7 @@ export function ImageDropZone({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <p className="font-mono text-xs text-gray-400 mb-1 tracking-wider">SCANNED DOCUMENT</p>
+                <p className="font-mono text-xs text-gray-400 mb-1 tracking-wider">{t.write.dropZone.scanned}</p>
                 <p className="font-serif text-xl text-white truncate">{fileName}</p>
               </motion.div>
             </div>
@@ -184,7 +186,7 @@ export function ImageDropZone({
                   >
                     <FileImage className="w-16 h-16 text-purple-400 mx-auto mb-4" />
                   </motion.div>
-                  <p className="text-xl font-medium text-purple-300">Drop to upload</p>
+                  <p className="text-xl font-medium text-purple-300">{t.write.dropZone.dropToUpload}</p>
                 </div>
               </motion.div>
             )}
@@ -202,22 +204,22 @@ export function ImageDropZone({
                 </div>
               </motion.div>
 
-              <p className="text-lg font-medium mb-2">Drop your letter here</p>
-              <p className="text-sm opacity-60 mb-6">or click to browse</p>
+              <p className="text-lg font-medium mb-2">{t.write.dropZone.dropHere}</p>
+              <p className="text-sm opacity-60 mb-6">{t.write.dropZone.browse}</p>
 
               <div className="flex gap-3 text-xs text-gray-600">
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-full">
                   <Camera className="w-3.5 h-3.5" />
-                  Photo
+                  {t.write.dropZone.photo}
                 </span>
                 <span className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 rounded-full">
                   <ImageIcon className="w-3.5 h-3.5" />
-                  Scan
+                  {t.write.dropZone.scan}
                 </span>
               </div>
 
               <p className="text-xs text-gray-600 mt-6 text-center max-w-[200px]">
-                Take a photo of your handwritten letter
+                {t.write.dropZone.instruction}
               </p>
             </div>
           </motion.div>

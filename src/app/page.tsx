@@ -9,7 +9,7 @@ import { PlatformStats } from "@/components/StatsDisplay";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { 
   ArrowRight, Sparkles, Inbox, Mail, Clock, Heart, 
-  Shield, Palette, Mic, ChevronDown 
+  Shield, Palette, Mic, ChevronDown, Globe 
 } from "lucide-react";
 
 // Feature card component
@@ -110,6 +110,11 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
+            <Link href="/community">
+              <Button variant="ghost" className="text-gray-400 hover:text-white gap-2">
+                <Globe className="w-4 h-4" /> {t.nav.community}
+              </Button>
+            </Link>
             {session ? (
               <>
                 <Link href="/write">

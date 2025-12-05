@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n';
 
 interface UserStats {
   lettersSent: number;
@@ -33,6 +34,7 @@ interface UserStats {
 }
 
 export default function ProfileClient() {
+  const { t, language } = useI18n();
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<UserStats>({ lettersSent: 0, lettersReceived: 0, lettersOpened: 0 });
@@ -87,7 +89,7 @@ export default function ProfileClient() {
 
   const handleSave = useCallback(async () => {
     if (!name.trim()) {
-      toast.error('Name cannot be empty');
+      toast.error(t.profile.nameEmpty);
       return;
     }
 
@@ -102,16 +104,16 @@ export default function ProfileClient() {
       if (response.ok) {
         await update({ name: name.trim() });
         setEditing(false);
-        toast.success('Profile updated successfully');
+        toast.success(t.profile.profileUpdated);
       } else {
         throw new Error('Failed to update profile');
       }
     } catch {
-      toast.error('Failed to update profile');
+      toast.error(t.profile.updateFailed);
     } finally {
       setSaving(false);
     }
-  }, [name, update]);
+  }, [name, update, t]);
 
   const handleSignOut = async () => {
     await signOut({ callbackUrl: '/' });
@@ -143,7 +145,7 @@ export default function ProfileClient() {
           className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Inbox</span>
+          <span>{t.profile.backToInbox}</span>
         </Link>
         <Button
           variant="ghost"
@@ -152,7 +154,7 @@ export default function ProfileClient() {
           className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
         >
           <LogOut className="w-4 h-4 mr-2" />
-          Sign Out
+          {t.profile.signOut}
         </Button>
       </nav>
 
@@ -185,7 +187,7 @@ export default function ProfileClient() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="max-w-xs bg-white/5 border-white/10"
-                  placeholder="Your name"
+                  placeholder={t.profile.yourName}
                   autoFocus
                 />
                 <Button
@@ -210,7 +212,7 @@ export default function ProfileClient() {
             ) : (
               <div className="flex items-center gap-3 justify-center md:justify-start">
                 <h1 className="text-3xl md:text-4xl font-serif font-bold">
-                  {user.name || 'Anonymous User'}
+                  {user.name || t.profile.anonymousUser}
                 </h1>
                 <button
                   onClick={() => setEditing(true)}
@@ -227,7 +229,7 @@ export default function ProfileClient() {
             </p>
             <p className="text-white/40 flex items-center gap-2 mt-1 justify-center md:justify-start text-sm">
               <Calendar className="w-4 h-4" />
-              Member since {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              {t.profile.memberSince} {new Date().toLocaleDateString(language === 'sr' ? 'sr-RS' : 'en-US', { month: 'long', year: 'numeric' })}
             </p>
           </div>
         </motion.div>
@@ -244,7 +246,7 @@ export default function ProfileClient() {
               <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
                 <Send className="w-5 h-5 text-purple-500" />
               </div>
-              <span className="text-white/60">Letters Sent</span>
+              <span className="text-white/60">{t.profile.lettersSent}</span>
             </div>
             <p className="text-4xl font-serif font-bold">{stats.lettersSent}</p>
           </div>
@@ -254,7 +256,7 @@ export default function ProfileClient() {
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
                 <Inbox className="w-5 h-5 text-blue-500" />
               </div>
-              <span className="text-white/60">Letters Received</span>
+              <span className="text-white/60">{t.profile.lettersReceived}</span>
             </div>
             <p className="text-4xl font-serif font-bold">{stats.lettersReceived}</p>
           </div>
@@ -264,7 +266,7 @@ export default function ProfileClient() {
               <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
                 <Mail className="w-5 h-5 text-green-500" />
               </div>
-              <span className="text-white/60">Letters Opened</span>
+              <span className="text-white/60">{t.profile.lettersOpened}</span>
             </div>
             <p className="text-4xl font-serif font-bold">{stats.lettersOpened}</p>
           </div>
@@ -279,7 +281,7 @@ export default function ProfileClient() {
         >
           <h2 className="text-xl font-semibold flex items-center gap-2 mb-4">
             <Settings className="w-5 h-5" />
-            Settings
+            {t.profile.settings}
           </h2>
 
           <div className="bg-zinc-900/50 rounded-2xl border border-white/5 divide-y divide-white/5">
@@ -290,8 +292,8 @@ export default function ProfileClient() {
                   <Bell className="w-5 h-5 text-amber-500" />
                 </div>
                 <div>
-                  <p className="font-medium">Email Notifications</p>
-                  <p className="text-sm text-white/50">Get notified when you receive letters</p>
+                  <p className="font-medium">{t.profile.emailNotifications}</p>
+                  <p className="text-sm text-white/50">{t.profile.emailNotifDesc}</p>
                 </div>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
@@ -307,11 +309,11 @@ export default function ProfileClient() {
                   <Palette className="w-5 h-5 text-purple-500" />
                 </div>
                 <div>
-                  <p className="font-medium">Theme</p>
-                  <p className="text-sm text-white/50">Customize the app appearance</p>
+                  <p className="font-medium">{t.profile.theme}</p>
+                  <p className="text-sm text-white/50">{t.profile.themeDesc}</p>
                 </div>
               </div>
-              <span className="text-white/60 text-sm">Dark (Default)</span>
+              <span className="text-white/60 text-sm">{t.profile.dark} (Default)</span>
             </div>
 
             {/* Privacy */}
@@ -321,12 +323,12 @@ export default function ProfileClient() {
                   <Shield className="w-5 h-5 text-green-500" />
                 </div>
                 <div>
-                  <p className="font-medium">Privacy & Security</p>
-                  <p className="text-sm text-white/50">Manage your account security</p>
+                  <p className="font-medium">{t.profile.privacy}</p>
+                  <p className="text-sm text-white/50">{t.profile.privacyDesc}</p>
                 </div>
               </div>
               <Button variant="ghost" size="sm">
-                Manage
+                {t.profile.manage}
               </Button>
             </div>
           </div>
@@ -339,15 +341,15 @@ export default function ProfileClient() {
           transition={{ delay: 0.3 }}
           className="mt-12"
         >
-          <h2 className="text-xl font-semibold text-red-400 mb-4">Danger Zone</h2>
+          <h2 className="text-xl font-semibold text-red-400 mb-4">{t.profile.dangerZone}</h2>
           <div className="bg-red-500/5 rounded-2xl border border-red-500/20 p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Delete Account</p>
-                <p className="text-sm text-white/50">Permanently delete your account and all data</p>
+                <p className="font-medium">{t.profile.deleteAccount}</p>
+                <p className="text-sm text-white/50">{t.profile.deleteAccountDesc}</p>
               </div>
               <Button variant="destructive" size="sm">
-                Delete Account
+                {t.profile.deleteAccount}
               </Button>
             </div>
           </div>

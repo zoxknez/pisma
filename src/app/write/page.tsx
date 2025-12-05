@@ -10,11 +10,12 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { WaxSealSelector } from '@/components/WaxSeal';
 import { AudioRecorder } from '@/components/AudioRecorder';
-import { TemplateSelector, letterTemplates, LetterTemplate } from '@/components/TemplateSelector';
+import { TemplateSelector, useLetterTemplates, LetterTemplate } from '@/components/TemplateSelector';
 import { ScheduledDelivery } from '@/components/ScheduledDelivery';
 import { ImageDropZone } from '@/components/ImageDropZone';
 import { EnhancedTextarea, InputWithValidation } from '@/components/FormElements';
 import { UploadProgress, SealingAnimation } from '@/components/ProgressIndicators';
+import { useI18n } from '@/lib/i18n';
 
 interface FormErrors {
   senderName?: string;
@@ -23,9 +24,11 @@ interface FormErrors {
 }
 
 export default function WritePage() {
+  const { t, language } = useI18n();
   const { data: session } = useSession();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const letterTemplates = useLetterTemplates();
 
   // File upload
   const [file, setFile] = useState<File | null>(null);
@@ -37,6 +40,7 @@ export default function WritePage() {
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringType, setRecurringType] = useState<'yearly' | 'monthly' | null>(null);
+  const [isPublic, setIsPublic] = useState(false);
 
   // Paper & Seal
   const [paper, setPaper] = useState('classic');
@@ -98,28 +102,36 @@ export default function WritePage() {
   const validateForm = useCallback((): boolean => {
     const newErrors: FormErrors = {};
     
+    if (!senderName.trim()) {
+      newErrors.senderName = t.write.validation.senderName;
+    }
+    
+    if (!recipientEmail.trim()) {
+      newErrors.recipientEmail = t.write.validation.recipientEmail;
+    }
+    
     if (!file) {
-      newErrors.file = 'Please upload a letter image';
+      newErrors.file = t.write.validation.file;
     }
     
     if (recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
-      newErrors.recipientEmail = 'Please enter a valid email address';
+      newErrors.recipientEmail = t.write.validation.invalidEmail;
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [file, recipientEmail]);
+  }, [file, recipientEmail, senderName, t]);
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error('Please fix the errors before submitting');
+      toast.error(t.write.error);
       return;
     }
     
     if (!file) return;
     
     setIsUploading(true);
-    setUploadProgress({ status: 'uploading', progress: 20, message: 'Uploading your letter...' });
+    setUploadProgress({ status: 'uploading', progress: 20, message: t.common.loading });
 
     const formData = new FormData();
     formData.append('file', file);
@@ -136,13 +148,15 @@ export default function WritePage() {
     formData.append('deliveryType', deliveryType);
     formData.append('isRecurring', isRecurring.toString());
     formData.append('recurringType', recurringType || '');
+    formData.append('isPublic', isPublic.toString());
+    formData.append('language', language);
     
     if (audioBlob) {
       formData.append('audio', audioBlob, 'voice-message.webm');
     }
 
     try {
-      setUploadProgress({ status: 'processing', progress: 50, message: 'Processing image...' });
+      setUploadProgress({ status: 'processing', progress: 50, message: t.common.loading });
       
       const unlockDuration = deliveryType === 'duration' 
         ? duration 
@@ -155,27 +169,27 @@ export default function WritePage() {
         body: formData,
       });
       
-      setUploadProgress({ status: 'sealing', progress: 80, message: 'Sealing with wax...' });
+      setUploadProgress({ status: 'sealing', progress: 80, message: t.write.sealLetter });
       
       if (res.ok) {
         const data = await res.json();
-        setUploadProgress({ status: 'success', progress: 100, message: 'Letter sealed!' });
+        setUploadProgress({ status: 'success', progress: 100, message: t.write.success });
         setShowSealingAnimation(true);
         
         // Wait for animation then redirect
         setTimeout(() => {
-          toast.success("Letter sealed and sent! ✉️");
+          toast.success(t.write.success);
           router.push(`/letter/${data.id}?created=true`);
         }, 2000);
       } else {
         const errorData = await res.json().catch(() => ({}));
-        setUploadProgress({ status: 'error', progress: 0, message: errorData.error || 'Upload failed' });
-        toast.error(errorData.error || "Failed to seal letter.");
+        setUploadProgress({ status: 'error', progress: 0, message: errorData.error || t.write.error });
+        toast.error(errorData.error || t.write.error);
       }
     } catch (error) {
       console.error(error);
-      setUploadProgress({ status: 'error', progress: 0, message: 'Network error' });
-      toast.error("Something went wrong. Please try again.");
+      setUploadProgress({ status: 'error', progress: 0, message: t.errors.networkError });
+      toast.error(t.errors.somethingWentWrong);
     } finally {
       if (uploadProgress.status !== 'success') {
         setIsUploading(false);
@@ -198,10 +212,10 @@ export default function WritePage() {
 
   const currentPrompt = useMemo(() => {
     if (selectedTemplate) {
-      return letterTemplates.find(t => t.id === selectedTemplate)?.promptText;
+      return letterTemplates.find(tmpl => tmpl.id === selectedTemplate)?.promptText;
     }
-    return "Add a short message to accompany your letter...";
-  }, [selectedTemplate]);
+    return t.write.messagePlaceholder;
+  }, [selectedTemplate, t, letterTemplates]);
 
   return (
     <main className="min-h-screen bg-black text-white p-6 relative overflow-hidden">
@@ -221,9 +235,9 @@ export default function WritePage() {
         <div className="flex items-center justify-between">
           <Link href={session ? '/inbox' : '/'} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
-            <span>Back</span>
+            <span>{t.common.back}</span>
           </Link>
-          <h1 className="text-2xl font-serif font-bold">Compose Letter</h1>
+          <h1 className="text-2xl font-serif font-bold">{t.write.title}</h1>
           
           {/* Completion indicator */}
           <div className="flex items-center gap-2">
@@ -248,8 +262,8 @@ export default function WritePage() {
           className="space-y-6 overflow-y-auto max-h-[calc(100vh-150px)] pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
         >
           <div>
-            <h2 className="text-4xl font-serif font-bold mb-2">The Desk</h2>
-            <p className="text-gray-400">Craft your letter with intention.</p>
+            <h2 className="text-4xl font-serif font-bold mb-2">{t.write.step3}</h2>
+            <p className="text-gray-400">{t.home.tagline}</p>
           </div>
 
           {/* Template Selection */}
@@ -261,19 +275,19 @@ export default function WritePage() {
           {/* Sender & Recipient */}
           <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md space-y-4">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
-              <User className="w-4 h-4" /> Sender & Recipient
+              <User className="w-4 h-4" /> {t.write.step2}
             </label>
             
             <div className="grid grid-cols-2 gap-4">
               <InputWithValidation
-                label="Your Name"
+                label={t.write.senderName}
                 value={senderName}
                 onChange={(e) => setSenderName(e.target.value)}
                 placeholder="Anonymous"
                 error={errors.senderName}
               />
               <InputWithValidation
-                label="Recipient Name"
+                label={t.write.recipientName}
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
                 placeholder="Dear..."
@@ -281,15 +295,30 @@ export default function WritePage() {
             </div>
 
             <InputWithValidation
-              label="Recipient Email (for notification)"
+              label={t.write.recipientEmail}
               type="email"
               value={recipientEmail}
               onChange={(e) => setRecipientEmail(e.target.value)}
               placeholder="recipient@example.com"
               error={errors.recipientEmail}
-              hint="They'll receive an email when the letter arrives"
+              hint={t.features.timeLockedDesc}
               icon={<Mail className="w-4 h-4" />}
             />
+
+            {/* Public Letter Toggle */}
+            <div className="flex items-center gap-3 pt-2 border-t border-white/10 mt-4">
+              <input
+                type="checkbox"
+                id="isPublic"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                className="w-5 h-5 rounded border-white/20 bg-white/5 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
+              />
+              <label htmlFor="isPublic" className="text-sm text-gray-300 cursor-pointer select-none flex-1">
+                <span className="font-medium text-white block mb-0.5">{t.write.publicLetter}</span>
+                <span className="text-xs text-gray-500 block">{t.write.publicLetterDesc}</span>
+              </label>
+            </div>
           </div>
 
           {/* Scheduled Delivery */}
@@ -311,7 +340,7 @@ export default function WritePage() {
           {/* Paper Selection */}
           <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md space-y-4">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-300">Paper Type</label>
+              <label className="text-sm font-medium text-gray-300">{t.write.paperType}</label>
               <button
                 onClick={() => setAgingEnabled(!agingEnabled)}
                 className={`text-xs px-3 py-1 rounded-full transition-all ${
@@ -321,7 +350,7 @@ export default function WritePage() {
                 }`}
                 aria-pressed={agingEnabled}
               >
-                {agingEnabled ? '✨ Aging On' : 'Aging Off'}
+                {agingEnabled ? `✨ ${t.write.agingEnabled}` : t.write.agingEnabled}
               </button>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -338,7 +367,7 @@ export default function WritePage() {
                     p === 'classic' ? 'bg-[#f7f3e8]' : 
                     p === 'vintage' ? 'bg-[#efe5cd]' : 'bg-neutral-800'
                   }`} />
-                  <span className="capitalize text-xs text-gray-400">{p}</span>
+                  <span className="capitalize text-xs text-gray-400">{t.write.paper[p as keyof typeof t.write.paper]}</span>
                 </button>
               ))}
             </div>
@@ -357,7 +386,7 @@ export default function WritePage() {
           {/* Digital Message */}
           <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
             <EnhancedTextarea
-              label="Digital Note (Optional)"
+              label={t.write.message}
               value={message}
               onChange={setMessage}
               placeholder={currentPrompt}
@@ -391,10 +420,10 @@ export default function WritePage() {
             className="w-full h-16 text-lg rounded-xl bg-white text-black hover:bg-gray-200 transition-all disabled:opacity-50 group"
           >
             {isUploading ? (
-              <span className="flex items-center gap-2"><Loader2 className="animate-spin" /> {uploadProgress.message || 'Sealing...'}</span>
+              <span className="flex items-center gap-2"><Loader2 className="animate-spin" /> {uploadProgress.message || t.write.sending}</span>
             ) : (
               <span className="flex items-center gap-2">
-                Seal & Send 
+                {t.write.send}
                 <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
             )}
@@ -437,12 +466,12 @@ export default function WritePage() {
             >
               <h4 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-400" />
-                Tips for best results
+                {t.write.tips.title}
               </h4>
               <ul className="text-xs text-gray-500 space-y-1">
-                <li>• Use good lighting when photographing</li>
-                <li>• Keep the paper flat and wrinkle-free</li>
-                <li>• Ensure all text is visible and legible</li>
+                <li>• {t.write.tips.lighting}</li>
+                <li>• {t.write.tips.flat}</li>
+                <li>• {t.write.tips.legible}</li>
               </ul>
             </motion.div>
           )}

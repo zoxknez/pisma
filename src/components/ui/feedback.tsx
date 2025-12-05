@@ -4,6 +4,51 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n';
+
+function ErrorState({ error, reset }: { error: Error | null, reset: () => void }) {
+  const { t } = useI18n();
+  
+  return (
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center space-y-6">
+        <div className="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
+          <AlertTriangle className="w-10 h-10 text-red-400" />
+        </div>
+        
+        <div className="space-y-2">
+          <h1 className="text-2xl font-serif font-bold">{t.feedback.errorTitle}</h1>
+          <p className="text-gray-400">
+            {t.feedback.errorDesc}
+          </p>
+        </div>
+
+        {process.env.NODE_ENV === 'development' && error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-left">
+            <p className="text-sm font-mono text-red-400 break-all">
+              {error.message}
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button
+            onClick={reset}
+            variant="outline"
+            className="gap-2 border-white/20"
+          >
+            <RefreshCw className="w-4 h-4" /> {t.feedback.tryAgain}
+          </Button>
+          <Link href="/">
+            <Button variant="ghost" className="gap-2 text-gray-400">
+              <Home className="w-4 h-4" /> {t.feedback.goHome}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   children: ReactNode;
@@ -48,45 +93,7 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      return (
-        <div className="min-h-screen bg-black text-white flex items-center justify-center p-6">
-          <div className="max-w-md w-full text-center space-y-6">
-            <div className="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
-              <AlertTriangle className="w-10 h-10 text-red-400" />
-            </div>
-            
-            <div className="space-y-2">
-              <h1 className="text-2xl font-serif font-bold">Something went wrong</h1>
-              <p className="text-gray-400">
-                We apologize for the inconvenience. An unexpected error occurred.
-              </p>
-            </div>
-
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-left">
-                <p className="text-sm font-mono text-red-400 break-all">
-                  {this.state.error.message}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                onClick={this.handleReset}
-                variant="outline"
-                className="gap-2 border-white/20"
-              >
-                <RefreshCw className="w-4 h-4" /> Try Again
-              </Button>
-              <Link href="/">
-                <Button variant="ghost" className="gap-2 text-gray-400">
-                  <Home className="w-4 h-4" /> Go Home
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      );
+      return <ErrorState error={this.state.error} reset={this.handleReset} />;
     }
 
     return this.props.children;
@@ -120,11 +127,12 @@ interface FullPageLoadingProps {
   message?: string;
 }
 
-export function FullPageLoading({ message = 'Loading...' }: FullPageLoadingProps) {
+export function FullPageLoading({ message }: FullPageLoadingProps) {
+  const { t } = useI18n();
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4">
       <LoadingSpinner size="lg" />
-      <p className="text-gray-400 text-sm">{message}</p>
+      <p className="text-gray-400 text-sm">{message || t.feedback.loading}</p>
     </div>
   );
 }

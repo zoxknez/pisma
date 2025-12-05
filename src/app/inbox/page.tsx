@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, Send, Mail, MailOpen, Clock, ArrowRight, User, LogOut, RefreshCw, Trash2, MoreVertical, UserCircle } from 'lucide-react';
+import { Inbox, Send, Mail, MailOpen, Clock, ArrowRight, User, LogOut, RefreshCw, Trash2, MoreVertical, UserCircle, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -15,8 +15,10 @@ import { DeleteConfirmDialog } from '@/components/ui/dialog';
 import { useDeleteLetter } from '@/hooks';
 import { toast } from 'sonner';
 import type { LetterListItem } from '@/types';
+import { useI18n } from '@/lib/i18n';
 
 export default function InboxPage() {
+  const { t } = useI18n();
   const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState<'received' | 'sent'>('received');
   const [letters, setLetters] = useState<LetterListItem[]>([]);
@@ -54,18 +56,18 @@ export default function InboxPage() {
       const res = await fetch(`/api/letters?type=${activeTab}`);
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to fetch letters');
+        throw new Error(data.error || t.errors.networkError);
       }
       const data = await res.json();
       setLetters(data);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'An error occurred';
+      const message = err instanceof Error ? err.message : t.errors.somethingWentWrong;
       setError(message);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [activeTab]);
+  }, [activeTab, t]);
 
   useEffect(() => {
     if (session?.user) {
@@ -78,12 +80,12 @@ export default function InboxPage() {
     const unlockAt = new Date(letter.unlockAt);
     
     if (letter.status === 'opened') {
-      return { label: 'Opened', color: 'text-green-400', icon: MailOpen };
+      return { label: t.inbox.status.opened, color: 'text-green-400', icon: MailOpen };
     }
     if (now < unlockAt) {
-      return { label: 'In Transit', color: 'text-yellow-400', icon: Clock };
+      return { label: t.inbox.status.inTransit, color: 'text-yellow-400', icon: Clock };
     }
-    return { label: 'Ready to Open', color: 'text-blue-400', icon: Mail };
+    return { label: t.inbox.status.ready, color: 'text-blue-400', icon: Mail };
   };
 
   if (status === 'loading') {
@@ -107,10 +109,10 @@ export default function InboxPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <Link href="/">
-              <h1 className="text-4xl font-serif font-bold tracking-tight">PISMA</h1>
+              <h1 className="text-4xl font-serif font-bold tracking-tight">{t.home.title}</h1>
             </Link>
             <p className="text-gray-500 mt-1">
-              Welcome back, {session?.user?.name || 'Writer'}
+              {t.auth.welcomeBack} {session?.user?.name}
             </p>
           </div>
           
@@ -121,23 +123,33 @@ export default function InboxPage() {
               onClick={() => fetchLetters(true)}
               disabled={refreshing}
               className="text-gray-400 hover:text-white"
-              aria-label="Refresh letters"
+              aria-label={t.commandPalette.refresh}
             >
               <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
+            <Link href="/community">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="text-gray-400 hover:text-white"
+                aria-label={t.nav.community}
+              >
+                <Globe className="w-5 h-5" />
+              </Button>
+            </Link>
             <Link href="/profile">
               <Button 
                 variant="ghost" 
                 size="icon"
                 className="text-gray-400 hover:text-white"
-                aria-label="Profile"
+                aria-label={t.nav.profile}
               >
                 <UserCircle className="w-5 h-5" />
               </Button>
             </Link>
             <Link href="/write">
               <Button className="gap-2 bg-white text-black hover:bg-gray-200">
-                <Send className="w-4 h-4" /> Compose
+                <Send className="w-4 h-4" /> {t.nav.write}
               </Button>
             </Link>
             <Button 
@@ -145,7 +157,7 @@ export default function InboxPage() {
               size="icon"
               onClick={() => signOut({ callbackUrl: '/' })}
               className="text-gray-400 hover:text-white"
-              aria-label="Sign out"
+              aria-label={t.nav.logout}
             >
               <LogOut className="w-5 h-5" />
             </Button>
@@ -163,7 +175,7 @@ export default function InboxPage() {
             }`}
           >
             <Inbox className="w-5 h-5" />
-            Received
+            {t.inbox.received}
           </button>
           <button
             onClick={() => setActiveTab('sent')}
@@ -174,7 +186,7 @@ export default function InboxPage() {
             }`}
           >
             <Send className="w-5 h-5" />
-            Sent
+            {t.inbox.sent}
           </button>
         </div>
 
@@ -190,18 +202,18 @@ export default function InboxPage() {
                 onClick={() => fetchLetters()}
                 className="gap-2 border-white/20"
               >
-                <RefreshCw className="w-4 h-4" /> Try Again
+                <RefreshCw className="w-4 h-4" /> {t.common.tryAgain}
               </Button>
             </div>
           ) : letters.length === 0 ? (
             <EmptyState
               icon={activeTab === 'received' ? <Inbox className="w-10 h-10 text-gray-600" /> : <Send className="w-10 h-10 text-gray-600" />}
-              title={activeTab === 'received' ? "No letters received yet" : "You haven't sent any letters yet"}
-              description={activeTab === 'sent' ? "Write your first letter to someone special" : undefined}
+              title={t.inbox.empty}
+              description={activeTab === 'sent' ? t.home.ctaSubtitle : t.inbox.emptyDesc}
               action={activeTab === 'sent' ? (
                 <Link href="/write">
                   <Button variant="outline" className="gap-2 border-white/20 hover:bg-white/10">
-                    Write your first letter <ArrowRight className="w-4 h-4" />
+                    {t.home.composeButton} <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
               ) : undefined}
@@ -265,7 +277,7 @@ export default function InboxPage() {
                                   setDeleteDialogOpen(true);
                                 }}
                                 className="p-2 rounded-lg text-gray-600 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
-                                aria-label="Delete letter"
+                                aria-label={t.common.delete}
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -288,19 +300,19 @@ export default function InboxPage() {
             <div className="text-3xl font-bold font-mono">
               {letters.filter(l => l.status === 'sealed').length}
             </div>
-            <div className="text-sm text-gray-500">In Transit</div>
+            <div className="text-sm text-gray-500">{t.stats.inTransit}</div>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
             <div className="text-3xl font-bold font-mono">
               {letters.filter(l => l.status === 'delivered').length}
             </div>
-            <div className="text-sm text-gray-500">Delivered</div>
+            <div className="text-sm text-gray-500">{t.letter.delivered}</div>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-xl p-6 text-center">
             <div className="text-3xl font-bold font-mono">
               {letters.filter(l => l.status === 'opened').length}
             </div>
-            <div className="text-sm text-gray-500">Opened</div>
+            <div className="text-sm text-gray-500">{t.letter.opened}</div>
           </div>
         </div>
       </div>
@@ -309,7 +321,7 @@ export default function InboxPage() {
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
-        itemName="this letter"
+        itemName={t.letter.deleteConfirm}
         onDelete={async () => {
           if (letterToDelete) {
             await deleteLetter(letterToDelete.id);

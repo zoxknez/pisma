@@ -56,6 +56,7 @@ export async function POST(
         senderId: true,
         recipientId: true,
         recipientEmail: true,
+        isPublic: true,
       },
     });
 
@@ -68,13 +69,14 @@ export async function POST(
       throw new ApiError(403, 'Cannot react to unopened letter', 'LETTER_NOT_OPENED');
     }
 
-    // Check if user is sender or recipient
-    const isInvolved =
+    // Check if user is sender, recipient, or if letter is public
+    const isAuthorized =
+      letter.isPublic ||
       letter.senderId === user.id ||
       letter.recipientId === user.id ||
       letter.recipientEmail === user.email;
 
-    if (!isInvolved) {
+    if (!isAuthorized) {
       throw new ApiError(403, 'You are not authorized to react to this letter', 'FORBIDDEN');
     }
 

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface Step {
   id: string;
@@ -166,6 +167,7 @@ interface SealingAnimationProps {
 }
 
 export function SealingAnimation({ isSealing, onComplete }: SealingAnimationProps) {
+  const { t } = useI18n();
   if (!isSealing) return null;
 
   return (
@@ -221,8 +223,8 @@ export function SealingAnimation({ isSealing, onComplete }: SealingAnimationProp
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8 }}
         >
-          <h2 className="text-2xl font-serif text-white mb-2">Sealing your letter...</h2>
-          <p className="text-gray-400 text-sm">Adding the finishing touches</p>
+          <h2 className="text-2xl font-serif text-white mb-2">{t.write.sealing.title}</h2>
+          <p className="text-gray-400 text-sm">{t.write.sealing.subtitle}</p>
         </motion.div>
       </div>
     </motion.div>

@@ -97,6 +97,8 @@ export async function POST(request: Request) {
       isRecurring: formData.get('isRecurring'),
       recurringType: formData.get('recurringType') || null,
       duration: unlockDuration,
+      language: formData.get('language'),
+      isPublic: formData.get('isPublic'),
     };
 
     const validationResult = createLetterSchema.safeParse(letterData);
@@ -206,6 +208,7 @@ export async function POST(request: Request) {
         recurringType: validData.recurringType || null,
         audioUrl,
         senderId: user?.id || null,
+        isPublic: validData.isPublic,
       },
     });
 
@@ -216,6 +219,7 @@ export async function POST(request: Request) {
         senderName: sanitizedSenderName,
         letterId: letter.id,
         unlockAt,
+        language: validData.language as 'en' | 'sr',
       }).catch(err => console.error('Email notification failed:', err));
     }
 

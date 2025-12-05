@@ -94,6 +94,9 @@ model Letter {
   // Aging Effects
   agingEnabled    Boolean  @default(true)
   
+  // Visibility
+  isPublic        Boolean  @default(false)
+
   // QR Code
   qrCodeUrl       String?
   

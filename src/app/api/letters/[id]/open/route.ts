@@ -45,6 +45,7 @@ export async function POST(
         recipientEmail: true,
         senderId: true,
         senderName: true,
+        isPublic: true,
       },
     });
 
@@ -52,12 +53,13 @@ export async function POST(
       throw new ApiError(404, 'Letter not found', 'NOT_FOUND');
     }
 
-    // Authorization check: only recipient can open
+    // Authorization check: only recipient can open, unless it's public
     const isRecipient = 
       (user?.id && letter.recipientId === user.id) ||
       (user?.email && letter.recipientEmail === user.email) ||
-      // Allow opening if letter has no specific recipient (public letter)
-      (!letter.recipientId && !letter.recipientEmail);
+      // Allow opening if letter has no specific recipient or is public
+      (!letter.recipientId && !letter.recipientEmail) ||
+      letter.isPublic;
 
     if (!isRecipient) {
       throw new ApiError(403, 'You are not authorized to open this letter', 'FORBIDDEN');

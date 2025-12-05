@@ -56,6 +56,8 @@ export const createLetterSchema = z.object({
   isRecurring: z.coerce.boolean().default(false),
   recurringType: z.enum(['yearly', 'monthly']).optional().nullable(),
   duration: z.coerce.number().min(1).max(87600).default(48), // max 10 years
+  language: z.enum(['en', 'sr']).default('en'),
+  isPublic: z.coerce.boolean().default(false),
 });
 
 export const reactionSchema = z.object({
