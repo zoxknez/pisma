@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { PlatformStats } from "@/components/StatsDisplay";
+import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { 
   ArrowRight, Sparkles, Inbox, Mail, Clock, Heart, 
   Shield, Palette, Mic, ChevronDown 
@@ -40,6 +41,7 @@ function FeatureCard({ icon, title, description, delay }: FeatureCardProps) {
 
 export default function Home() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const [particles, setParticles] = useState<{ id: number; x: number; y: number; moveY: number; duration: number }[]>([]);
   const { scrollY } = useScroll();
   
@@ -47,39 +49,39 @@ export default function Home() {
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0]);
 
-  // Features data
+  // Features data - now using translations
   const features = useMemo(() => [
     {
       icon: <Clock className="w-6 h-6 text-amber-400" />,
-      title: "Vremenski zaključano",
-      description: "Pisma se otključavaju u određeno vreme, stvarajući iščekivanje i uzbuđenje.",
+      title: t.features.timeLocked,
+      description: t.features.timeLockedDesc,
     },
     {
       icon: <Palette className="w-6 h-6 text-pink-400" />,
-      title: "Personalizovani dizajn",
-      description: "Voštani pečati, starinsi papir i jedinstveni šabloni za svaku priliku.",
+      title: t.features.personalized,
+      description: t.features.personalizedDesc,
     },
     {
       icon: <Mic className="w-6 h-6 text-blue-400" />,
-      title: "Glasovne poruke",
-      description: "Dodaj lični pečat sa audio snimkom uz svoje pismo.",
+      title: t.features.voice,
+      description: t.features.voiceDesc,
     },
     {
       icon: <Heart className="w-6 h-6 text-red-400" />,
-      title: "Emotivne reakcije",
-      description: "Izrazi osećanja emoji reakcijama na primljena pisma.",
+      title: t.features.reactions,
+      description: t.features.reactionsDesc,
     },
     {
       icon: <Shield className="w-6 h-6 text-green-400" />,
-      title: "Privatno i sigurno",
-      description: "End-to-end privatnost sa sigurnom autentifikacijom.",
+      title: t.features.secure,
+      description: t.features.secureDesc,
     },
     {
       icon: <Mail className="w-6 h-6 text-purple-400" />,
-      title: "QR kod praćenje",
-      description: "Prati status svog pisma u realnom vremenu.",
+      title: t.features.qrCode,
+      description: t.features.qrCodeDesc,
     },
-  ], []);
+  ], [t]);
 
   useEffect(() => {
     setParticles(
@@ -107,16 +109,17 @@ export default function Home() {
             PISMA
           </Link>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             {session ? (
               <>
                 <Link href="/write">
                   <Button variant="ghost" className="text-gray-400 hover:text-white gap-2">
-                    <Mail className="w-4 h-4" /> Napiši
+                    <Mail className="w-4 h-4" /> {t.nav.write}
                   </Button>
                 </Link>
                 <Link href="/inbox">
                   <Button variant="outline" className="gap-2 border-white/20 hover:bg-white/10 text-white">
-                    <Inbox className="w-4 h-4" /> Inbox
+                    <Inbox className="w-4 h-4" /> {t.nav.inbox}
                   </Button>
                 </Link>
               </>
@@ -124,12 +127,12 @@ export default function Home() {
               <>
                 <Link href="/auth/login">
                   <Button variant="ghost" className="text-gray-400 hover:text-white">
-                    Prijava
+                    {t.nav.login}
                   </Button>
                 </Link>
                 <Link href="/auth/register">
                   <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
-                    Registracija
+                    {t.nav.register}
                   </Button>
                 </Link>
               </>
@@ -159,7 +162,7 @@ export default function Home() {
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm"
           >
             <Sparkles className="w-4 h-4 text-yellow-200" />
-            <span className="text-sm font-mono text-gray-300">Umetnost čekanja u doba trenutnog</span>
+            <span className="text-sm font-mono text-gray-300">{t.home.tagline}</span>
           </motion.div>
 
           <motion.h1 
@@ -168,7 +171,7 @@ export default function Home() {
             transition={{ duration: 1, delay: 0.2 }}
             className="text-7xl md:text-9xl font-serif font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500"
           >
-            PISMA
+            {t.home.title}
           </motion.h1>
 
           <motion.p 
@@ -177,8 +180,8 @@ export default function Home() {
             transition={{ duration: 1, delay: 0.4 }}
             className="text-xl md:text-2xl text-gray-400 max-w-2xl font-light leading-relaxed"
           >
-            Digitalna pisma koja čekaju svoje vreme. <br/>
-            <span className="text-gray-500">Pošalji vremenski zaključane poruke onima do kojih ti je stalo.</span>
+            {t.home.subtitle} <br/>
+            <span className="text-gray-500">{t.home.subtitleSecond}</span>
           </motion.p>
 
           <motion.div 
@@ -189,14 +192,14 @@ export default function Home() {
           >
             <Link href="/write">
               <Button size="lg" variant="glow" className="text-lg px-8 h-14 rounded-full group">
-                Napiši pismo 
+                {t.home.composeButton}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
             
             <Link href="/track">
               <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full border-white/20 hover:bg-white/10 text-white">
-                Prati pošiljku
+                {t.home.trackButton}
               </Button>
             </Link>
           </motion.div>
@@ -214,7 +217,7 @@ export default function Home() {
             transition={{ duration: 2, repeat: Infinity }}
             className="flex flex-col items-center gap-2 text-white/40"
           >
-            <span className="text-xs">Skroluj</span>
+            <span className="text-xs">{t.home.scroll}</span>
             <ChevronDown className="w-5 h-5" />
           </motion.div>
         </motion.div>
@@ -241,10 +244,10 @@ export default function Home() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-center text-white mb-4">
-            Zajednica pismonoša
+            {t.home.communityTitle}
           </h2>
           <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
-            Pridruži se hiljadama koji su ponovo otkrili čar pisane reči
+            {t.home.communitySubtitle}
           </p>
           <PlatformStats />
         </motion.div>
@@ -259,10 +262,10 @@ export default function Home() {
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-center text-white mb-4">
-            Zašto PISMA?
+            {t.home.whyTitle}
           </h2>
           <p className="text-center text-white/60 mb-12 max-w-2xl mx-auto">
-            Kombinacija moderne tehnologije i nostalgije pisane komunikacije
+            {t.home.whySubtitle}
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -301,14 +304,14 @@ export default function Home() {
               ✉️
             </motion.div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
-              Spreman da pošalješ svoje prvo pismo?
+              {t.home.ctaTitle}
             </h2>
             <p className="text-white/60 mb-8 max-w-xl mx-auto">
-              Napravi nalog za par sekundi i počni da šalješ pisma koja će ostaviti trajni utisak.
+              {t.home.ctaSubtitle}
             </p>
             <Link href={session ? "/write" : "/auth/register"}>
               <Button size="lg" variant="glow" className="text-lg px-10 h-14 rounded-full">
-                {session ? "Napiši pismo" : "Započni besplatno"}
+                {session ? t.home.composeButton : t.home.ctaButton}
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
@@ -321,17 +324,17 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-2xl font-serif font-bold text-white/80">PISMA</div>
           <p className="text-white/40 text-sm">
-            © {new Date().getFullYear()} Pisma. Sva prava zadržana.
+            © {new Date().getFullYear()} Pisma. {t.home.footer}
           </p>
           <div className="flex gap-6">
             <Link href="/track" className="text-white/40 hover:text-white text-sm transition-colors">
-              Prati
+              {t.nav.track}
             </Link>
             <Link href="/write" className="text-white/40 hover:text-white text-sm transition-colors">
-              Napiši
+              {t.nav.write}
             </Link>
             <Link href="/inbox" className="text-white/40 hover:text-white text-sm transition-colors">
-              Inbox
+              {t.nav.inbox}
             </Link>
           </div>
         </div>
