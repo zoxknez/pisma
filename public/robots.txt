@@ -1,0 +1,16 @@
+# Pisma - Digital Letters Platform
+# https://pisma.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /inbox
+Disallow: /profile
+Disallow: /write
+Disallow: /letter/
+
+# Sitemap location
+Sitemap: https://pisma.app/sitemap.xml
+
+# Crawl delay (optional, respected by some bots)
+Crawl-delay: 1

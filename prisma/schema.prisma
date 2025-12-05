@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  
+  accounts      Account[]
+  sessions      Session[]
+  sentLetters   Letter[]  @relation("SentLetters")
+  receivedLetters Letter[] @relation("ReceivedLetters")
+  reactions     Reaction[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Letter Models
+model Letter {
+  id              String   @id @default(cuid())
+  imageUrl        String
+  unlockAt        DateTime
+  scheduledDate   DateTime? // Exact scheduled delivery date
+  isRecurring     Boolean  @default(false)
+  recurringType   String?  // yearly, monthly
+  createdAt       DateTime @default(now())
+  openedAt        DateTime?
+  status          String   @default("sealed") // sealed, delivered, opened
+  paperType       String   @default("classic")
+  templateType    String?  // love, future-self, greeting, thank-you
+  
+  // Sender/Recipient
+  senderId        String?
+  sender          User?    @relation("SentLetters", fields: [senderId], references: [id])
+  recipientId     String?
+  recipient       User?    @relation("ReceivedLetters", fields: [recipientId], references: [id])
+  recipientEmail  String?  // For non-registered recipients
+  recipientName   String?
+  senderName      String?
+  
+  // Content
+  message         String?  @db.Text
+  audioUrl        String?  // Voice message URL
+  
+  // Wax Seal
+  sealColor       String   @default("#8B0000") // Dark red default
+  sealDesign      String   @default("classic") // classic, heart, star, crown, custom
+  sealInitials    String?  // Custom initials on seal
+  
+  // Aging Effects
+  agingEnabled    Boolean  @default(true)
+  
+  // QR Code
+  qrCodeUrl       String?
+  
+  // Archive flags for soft delete
+  senderArchived    Boolean @default(false)
+  recipientArchived Boolean @default(false)
+  
+  // Relations
+  reactions       Reaction[]
+  
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([recipientEmail])
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  emoji     String   // 💝, 😢, 😊, 🥰, etc.
+  userName  String?  // Cached user name for display
+  createdAt DateTime @default(now())
+  
+  letterId  String
+  letter    Letter   @relation(fields: [letterId], references: [id], onDelete: Cascade)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([letterId, userId]) // One reaction per user per letter
+}
+
+// Letter Templates
+model LetterTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // love, future-self, greeting, thank-you
+  description String
+  promptText  String   @db.Text
+  paperType   String   @default("classic")
+  sealColor   String   @default("#8B0000")
+  sealDesign  String   @default("classic")
+}
