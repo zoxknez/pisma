@@ -12,9 +12,10 @@ interface WaxSealProps {
   onClick?: () => void;
   selected?: boolean;
   ariaLabel?: string;
+  className?: string;
 }
 
-export function WaxSeal({ color, design, initials, size = 'md', onClick, selected, ariaLabel }: WaxSealProps) {
+export function WaxSeal({ color, design, initials, size = 'md', onClick, selected, ariaLabel, className = '' }: WaxSealProps) {
   const { t } = useI18n();
   const sizeClasses = {
     sm: 'w-12 h-12',
@@ -86,8 +87,9 @@ export function WaxSeal({ color, design, initials, size = 'md', onClick, selecte
         relative
         overflow-hidden
         ${selected ? 'ring-2 ring-white ring-offset-2 ring-offset-black' : ''}
+        ${className}
       `}
-      style={{ 
+      style={{  
         backgroundColor: color,
         boxShadow: `0 4px 20px ${color}40, inset 0 2px 4px rgba(255,255,255,0.2), inset 0 -2px 4px rgba(0,0,0,0.3)`
       }}

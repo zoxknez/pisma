@@ -369,6 +369,7 @@ export const translations = {
       noResults: 'Nema rezultata',
       tryAgain: 'Pokušaj ponovo',
       learnMore: 'Saznaj više',
+      read: 'Pročitaj',
     },
 
     // Notifications
@@ -452,7 +453,10 @@ export const translations = {
     // Feedback
     feedback: {
       loading: 'Učitavanje...',
+      errorTitle: 'Došlo je do greške',
       errorDesc: 'Izvinjavamo se na neprijatnosti. Došlo je do neočekivane greške.',
+      tryAgain: 'Pokušaj ponovo',
+      goHome: 'Idi na početnu',
       emptyTitle: 'Nema podataka',
       emptyDesc: 'Ovde trenutno nema ničega.',
     },
@@ -838,6 +842,7 @@ export const translations = {
       noResults: 'No results',
       tryAgain: 'Try again',
       learnMore: 'Learn more',
+      read: 'Read',
     },
 
     // Notifications
@@ -921,7 +926,10 @@ export const translations = {
     // Feedback
     feedback: {
       loading: 'Loading...',
+      errorTitle: 'Something went wrong',
       errorDesc: 'We apologize for the inconvenience. An unexpected error occurred.',
+      tryAgain: 'Try again',
+      goHome: 'Go Home',
       emptyTitle: 'No data',
       emptyDesc: 'There is nothing here right now.',
     },

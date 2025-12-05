@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { WaxSeal } from '@/components/WaxSeal';
 import { LetterListSkeleton, EmptyState } from '@/components/ui/feedback';
 import { useI18n } from '@/lib/i18n';
+import type { SealDesign } from '@/types';
 
 interface PublicLetter {
   id: string;
@@ -138,7 +139,7 @@ export default function CommunityPage() {
             ) : (
               <Link href="/auth/login">
                 <Button className="bg-white text-black hover:bg-gray-200">
-                  {t.auth.login}
+                  {t.auth.loginButton}
                 </Button>
               </Link>
             )}
@@ -163,10 +164,13 @@ export default function CommunityPage() {
           ) : letters.length === 0 ? (
             <EmptyState
               icon={<Globe className="w-10 h-10 text-gray-600" />}
-              title={t.inbox.empty.title}
-              description={t.inbox.empty.description}
-              actionLabel={t.nav.write}
-              onAction={() => router.push('/write')}
+              title={t.inbox.empty}
+              description={t.inbox.emptyDesc}
+              action={
+                <Button onClick={() => router.push('/write')} className="gap-2 bg-white text-black hover:bg-gray-200">
+                  <Send className="w-4 h-4" /> {t.nav.write}
+                </Button>
+              }
             />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -187,7 +191,7 @@ export default function CommunityPage() {
                         <div className="relative">
                           <WaxSeal 
                             color={letter.sealColor} 
-                            design={letter.sealDesign} 
+                            design={letter.sealDesign as SealDesign} 
                             className="w-10 h-10" 
                           />
                           {letter.isLocked && (
