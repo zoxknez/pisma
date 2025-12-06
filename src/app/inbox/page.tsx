@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Inbox, Send, Mail, MailOpen, Clock, ArrowRight, User, LogOut, RefreshCw, Trash2, MoreVertical, UserCircle, Globe } from 'lucide-react';
+import { Inbox, Send, Mail, MailOpen, Clock, ArrowRight, User, LogOut, RefreshCw, Trash2, MoreVertical, UserCircle, Globe, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -27,7 +27,23 @@ export default function InboxPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [letterToDelete, setLetterToDelete] = useState<LetterListItem | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      try {
+        const res = await fetch('/api/admin/stats');
+        setIsAdmin(res.ok);
+      } catch {
+        setIsAdmin(false);
+      }
+    };
+    if (session?.user) {
+      checkAdmin();
+    }
+  }, [session]);
 
   const handleDeleteSuccess = useCallback(() => {
     if (letterToDelete) {
@@ -147,6 +163,18 @@ export default function InboxPage() {
                 <UserCircle className="w-5 h-5" />
               </Button>
             </Link>
+            {isAdmin && (
+              <Link href="/admin">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-red-400 hover:text-red-300"
+                  aria-label="Admin"
+                >
+                  <Shield className="w-5 h-5" />
+                </Button>
+              </Link>
+            )}
             <Link href="/write">
               <Button className="gap-2 bg-white text-black hover:bg-gray-200">
                 <Send className="w-4 h-4" /> {t.nav.write}

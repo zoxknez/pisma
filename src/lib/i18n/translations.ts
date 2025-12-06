@@ -208,6 +208,8 @@ export const translations = {
       letterFrom: 'Pismo od',
       sentOn: 'Poslato',
       openedOn: 'Otvoreno',
+      mysteryAwaits: 'Misterija čeka da bude otkrivena...',
+      clickToReveal: 'Klikni da otkriješ pošiljaoca',
     },
 
     aging: {
@@ -284,6 +286,7 @@ export const translations = {
       future: { name: 'Budućem sebi', desc: 'Poruka kroz vreme', prompt: 'Šta želiš da zapamtiš?' },
       greeting: { name: 'Posebna prilika', desc: 'Rođendani, godišnjice...', prompt: 'Proslavi ovaj trenutak...' },
       thankYou: { name: 'Zahvalnica', desc: 'Pokaži zahvalnost', prompt: 'Izrazi svoju zahvalnost...' },
+      newYear: { name: '🎆 Nova Godina', desc: 'Novogodišnje čestitke', prompt: 'Napiši želje za novu godinu, refleksije o prošloj godini, ili planove za budućnost...' },
     },
 
     // Wax Seal
@@ -681,6 +684,8 @@ export const translations = {
       letterFrom: 'Letter from',
       sentOn: 'Sent on',
       openedOn: 'Opened on',
+      mysteryAwaits: 'A mystery awaits to be revealed...',
+      clickToReveal: 'Click to reveal the sender',
     },
 
     aging: {
@@ -757,6 +762,7 @@ export const translations = {
       future: { name: 'Future Self', desc: 'Message through time', prompt: 'What do you want to remember?' },
       greeting: { name: 'Special Occasion', desc: 'Birthdays, anniversaries...', prompt: 'Celebrate this special moment...' },
       thankYou: { name: 'Thank You', desc: 'Show gratitude', prompt: 'Express your appreciation...' },
+      newYear: { name: '🎆 New Year', desc: 'New Year wishes', prompt: 'Write your wishes for the new year, reflections on the past year, or plans for the future...' },
     },
 
     // Wax Seal

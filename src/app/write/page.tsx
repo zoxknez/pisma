@@ -15,6 +15,8 @@ import { ScheduledDelivery } from '@/components/ScheduledDelivery';
 import { ImageDropZone } from '@/components/ImageDropZone';
 import { EnhancedTextarea, InputWithValidation } from '@/components/FormElements';
 import { UploadProgress, SealingAnimation } from '@/components/ProgressIndicators';
+import { LetterPreviewModal } from '@/components/LetterPreviewModal';
+import { NewYearCountdown, NewYearConfetti } from '@/components/NewYearEffects';
 import { useI18n } from '@/lib/i18n';
 
 interface FormErrors {
@@ -67,6 +69,8 @@ export default function WritePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ status: 'idle' | 'uploading' | 'processing' | 'sealing' | 'success' | 'error'; progress: number; message: string }>({ status: 'idle', progress: 0, message: '' });
   const [showSealingAnimation, setShowSealingAnimation] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [showNewYearConfetti, setShowNewYearConfetti] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
   // Update sender name when session loads
@@ -122,7 +126,17 @@ export default function WritePage() {
     return Object.keys(newErrors).length === 0;
   }, [file, recipientEmail, senderName, t]);
 
+  const handlePreview = () => {
+    if (!validateForm()) {
+      toast.error(t.write.error);
+      return;
+    }
+    setShowPreview(true);
+  };
+
   const handleSubmit = async () => {
+    setShowPreview(false);
+    
     if (!validateForm()) {
       toast.error(t.write.error);
       return;
@@ -176,6 +190,11 @@ export default function WritePage() {
         setUploadProgress({ status: 'success', progress: 100, message: t.write.success });
         setShowSealingAnimation(true);
         
+        // Show confetti for New Year template
+        if (selectedTemplate === 'new-year') {
+          setShowNewYearConfetti(true);
+        }
+        
         // Wait for animation then redirect
         setTimeout(() => {
           toast.success(t.write.success);
@@ -219,6 +238,9 @@ export default function WritePage() {
 
   return (
     <main className="min-h-screen bg-black text-white p-6 relative overflow-hidden">
+      {/* New Year Confetti on successful send */}
+      {showNewYearConfetti && <NewYearConfetti />}
+      
       {/* Sealing Animation Overlay */}
       <AnimatePresence>
         {showSealingAnimation && <SealingAnimation isSealing={showSealingAnimation} />}
@@ -265,6 +287,9 @@ export default function WritePage() {
             <h2 className="text-4xl font-serif font-bold mb-2">{t.write.step3}</h2>
             <p className="text-gray-400">{t.home.tagline}</p>
           </div>
+
+          {/* New Year Countdown - shows when New Year template is selected */}
+          {selectedTemplate === 'new-year' && <NewYearCountdown />}
 
           {/* Template Selection */}
           <TemplateSelector
@@ -412,9 +437,9 @@ export default function WritePage() {
             )}
           </AnimatePresence>
 
-          {/* Action Button */}
+          {/* Action Button - Now opens preview */}
           <Button
-            onClick={handleSubmit}
+            onClick={handlePreview}
             disabled={!file || isUploading}
             size="lg"
             className="w-full h-16 text-lg rounded-xl bg-white text-black hover:bg-gray-200 transition-all disabled:opacity-50 group"
@@ -423,7 +448,7 @@ export default function WritePage() {
               <span className="flex items-center gap-2"><Loader2 className="animate-spin" /> {uploadProgress.message || t.write.sending}</span>
             ) : (
               <span className="flex items-center gap-2">
-                {t.write.send}
+                Preview & Send
                 <Send className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </span>
             )}
@@ -478,6 +503,30 @@ export default function WritePage() {
         </motion.div>
 
       </div>
+
+      {/* Letter Preview Modal */}
+      <LetterPreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        onConfirm={handleSubmit}
+        isLoading={isUploading}
+        data={{
+          preview,
+          senderName,
+          recipientName,
+          recipientEmail,
+          message,
+          paperType: paper,
+          sealColor,
+          sealDesign,
+          sealInitials,
+          duration,
+          scheduledDate,
+          deliveryType,
+          hasAudio: !!audioBlob,
+          isPublic,
+        }}
+      />
     </main>
   );
 }

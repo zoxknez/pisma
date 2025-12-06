@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import AuthProvider from "@/components/providers/AuthProvider";
+import { NewYearBannerWrapper } from "@/components/NewYearBannerWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" });
@@ -103,6 +104,7 @@ export default function RootLayout({
         mono.variable
       )}>
         <AuthProvider>
+          <NewYearBannerWrapper />
           {children}
           <Toaster 
             position="bottom-center" 

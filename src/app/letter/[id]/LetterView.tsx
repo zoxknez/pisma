@@ -160,7 +160,7 @@ export default function LetterView({ letter }: LetterViewProps) {
             <div>
               <h1 className="text-4xl font-serif font-bold mb-2">{t.stats.inTransit}</h1>
               <p className="text-gray-500">
-                {letter.senderName ? `${t.letter.letterFrom} ${letter.senderName}` : t.letter.sealedUntil}
+                {t.letter.mysteryAwaits}
               </p>
             </div>
 
@@ -225,9 +225,7 @@ export default function LetterView({ letter }: LetterViewProps) {
                 className="text-center"
               >
                 <p className="text-gray-400 font-serif italic mb-2">{t.letter.openLetter}</p>
-                {letter.senderName && (
-                  <p className="text-gray-500 text-sm">{t.letter.letterFrom}: {letter.senderName}</p>
-                )}
+                <p className="text-gray-500 text-sm">{t.letter.clickToReveal}</p>
               </motion.div>
             )}
           </motion.div>

@@ -50,7 +50,7 @@ export async function sendLetterNotification({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Pisma <letters@pisma.app>',
+      from: 'Pisma <onboarding@resend.dev>',
       to: recipientEmail,
       subject: subject,
       html: `
@@ -139,7 +139,7 @@ export async function sendLetterDeliveredNotification({
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Pisma <letters@pisma.app>',
+      from: 'Pisma <onboarding@resend.dev>',
       to: recipientEmail,
       subject: subject,
       html: `
