@@ -250,7 +250,7 @@ export function FullLetterPreview({
                       {language === 'sr' ? 'Klikni za otvaranje' : 'Click to open'}
                     </h2>
                     <p className="text-white/40 text-sm">
-                      {language === 'sr' ? 'Pogledaj kako će primalac vidjeti tvoje pismo' : 'See how recipient will view your letter'}
+                      {language === 'sr' ? 'Pogledaj kako će primalac videti tvoje pismo' : 'See how recipient will view your letter'}
                     </p>
                   </div>
                 </motion.div>
@@ -408,7 +408,7 @@ export function FullLetterPreview({
           >
             <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
               <p className="text-green-300 text-sm">
-                ✉️ {language === 'sr' ? 'Email obavijest će biti poslana na' : 'Email notification will be sent to'}{' '}
+                ✉️ {language === 'sr' ? 'Email obaveštenje stiže na' : 'Email notification will be sent to'}{' '}
                 <strong>{data.recipientEmail}</strong>
               </p>
             </div>

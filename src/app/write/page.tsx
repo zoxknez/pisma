@@ -439,7 +439,7 @@ export default function WritePage() {
                   </p>
                   <p className="text-sm text-gray-400">
                     {language === 'sr' 
-                      ? 'Primalac neće vidjeti tvoje ime dok ne otvori pismo' 
+                      ? 'Primalac neće videti tvoje ime dok ne otvori pismo' 
                       : 'Recipient won\'t see your name until they open the letter'}
                   </p>
                 </div>

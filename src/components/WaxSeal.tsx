@@ -57,7 +57,7 @@ export function WaxSeal({ color, design, initials, size = 'md', onClick, selecte
         );
       default:
         return (
-          <span className={`font-serif font-bold ${fontSizes[size]} opacity-90`} aria-hidden="true">
+          <span className={`font-serif font-bold ${fontSizes[size]} text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] tracking-wider`} aria-hidden="true">
             {initials ? initials.substring(0, 2).toUpperCase() : t.letter.sealed.toUpperCase()}
           </span>
         );
