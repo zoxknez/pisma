@@ -22,12 +22,12 @@ export interface LetterTemplate {
 export function useLetterTemplates() {
   const { t } = useI18n();
 
-  // Check if it's New Year season (Dec 15 - Jan 15)
+  // Check if it's New Year season (Dec 1 - Jan 15)
   const isNewYearSeason = useMemo(() => {
     const now = new Date();
     const month = now.getMonth();
     const day = now.getDate();
-    return (month === 11 && day >= 15) || (month === 0 && day <= 15);
+    return (month === 11 && day >= 1) || (month === 0 && day <= 15);
   }, []);
 
   const templates: LetterTemplate[] = useMemo(() => {

@@ -36,7 +36,7 @@ export const letterQuerySchema = z.object({
 });
 
 export const createLetterSchema = z.object({
-  paperType: z.enum(['classic', 'vintage', 'dark']).default('classic'),
+  paperType: z.enum(['classic', 'vintage', 'dark', 'parchment', 'elegant', 'midnight', 'rose', 'forest']).default('classic'),
   message: z.string().max(10000, 'Message too long').optional(),
   sealColor: z
     .string()
@@ -47,13 +47,15 @@ export const createLetterSchema = z.object({
   recipientName: z.string().max(100, 'Name too long').optional(),
   recipientEmail: z.string().email('Invalid email').optional().or(z.literal('')),
   senderName: z.string().max(100, 'Name too long').default('Anonymous'),
-  templateType: z.enum(['love', 'future-self', 'greeting', 'thank-you']).optional().nullable(),
+  templateType: z.enum(['love', 'future-self', 'greeting', 'thank-you', 'new-year']).optional().nullable(),
   agingEnabled: z.coerce.boolean().default(true),
   isRecurring: z.coerce.boolean().default(false),
   recurringType: z.enum(['yearly', 'monthly']).optional().nullable(),
   duration: z.coerce.number().min(1).max(87600).default(48), // max 10 years
   language: z.enum(['en', 'sr']).default('en'),
   isPublic: z.coerce.boolean().default(false),
+  isAnonymous: z.coerce.boolean().default(false),
+  letterStyle: z.enum(['minimal', 'elegant', 'romantic', 'royal', 'vintage']).default('minimal'),
 });
 
 export const reactionSchema = z.object({

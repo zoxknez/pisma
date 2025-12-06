@@ -185,12 +185,12 @@ export function NewYearCountdown() {
 export function NewYearBanner() {
   const [isVisible, setIsVisible] = useState(true);
 
-  // Check if it's New Year season
+  // Check if it's New Year season (December 1 - January 15)
   const isNewYearSeason = (() => {
     const now = new Date();
     const month = now.getMonth();
     const day = now.getDate();
-    return (month === 11 && day >= 15) || (month === 0 && day <= 15);
+    return (month === 11 && day >= 1) || (month === 0 && day <= 15);
   })();
 
   if (!isNewYearSeason || !isVisible) return null;

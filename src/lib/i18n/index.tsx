@@ -8,27 +8,56 @@ interface I18nContextType {
   setLanguage: (lang: Language) => void;
   t: TranslationKeys;
   toggleLanguage: () => void;
+  isDetecting: boolean;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 const LANGUAGE_STORAGE_KEY = 'pisma-language';
+const LANGUAGE_DETECTED_KEY = 'pisma-language-detected';
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>('sr');
+  const [isDetecting, setIsDetecting] = useState(true);
 
-  // Load language from localStorage on mount
+  // Load language from localStorage or detect from IP
   useEffect(() => {
-    const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null;
-    if (savedLanguage && (savedLanguage === 'sr' || savedLanguage === 'en')) {
-      setLanguageState(savedLanguage);
-    } else {
-      // Detect browser language
-      const browserLang = navigator.language.split('-')[0];
-      if (browserLang === 'en') {
-        setLanguageState('en');
+    const detectLanguage = async () => {
+      // Check if user has manually set language
+      const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as Language | null;
+      const wasDetected = localStorage.getItem(LANGUAGE_DETECTED_KEY);
+      
+      if (savedLanguage && (savedLanguage === 'sr' || savedLanguage === 'en')) {
+        setLanguageState(savedLanguage);
+        setIsDetecting(false);
+        return;
       }
-    }
+
+      // If not detected before, detect from IP
+      if (!wasDetected) {
+        try {
+          const response = await fetch('/api/detect-language');
+          if (response.ok) {
+            const data = await response.json();
+            const detectedLang = data.language as Language;
+            setLanguageState(detectedLang);
+            localStorage.setItem(LANGUAGE_STORAGE_KEY, detectedLang);
+            localStorage.setItem(LANGUAGE_DETECTED_KEY, 'true');
+          }
+        } catch (error) {
+          console.error('Language detection failed:', error);
+          // Fallback to browser language
+          const browserLang = navigator.language.split('-')[0];
+          if (browserLang === 'en') {
+            setLanguageState('en');
+          }
+        }
+      }
+      
+      setIsDetecting(false);
+    };
+
+    detectLanguage();
   }, []);
 
   const setLanguage = useCallback((lang: Language) => {
@@ -46,7 +75,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   const t = translations[language] as TranslationKeys;
 
   return (
-    <I18nContext.Provider value={{ language, setLanguage, t, toggleLanguage }}>
+    <I18nContext.Provider value={{ language, setLanguage, t, toggleLanguage, isDetecting }}>
       {children}
     </I18nContext.Provider>
   );

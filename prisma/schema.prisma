@@ -95,6 +95,10 @@ model Letter {
   // Aging Effects
   agingEnabled    Boolean  @default(true)
   
+  // Anonymity & Style
+  isAnonymous     Boolean  @default(false)  // Hide sender until opened
+  letterStyle     String   @default("minimal")  // minimal, elegant, romantic, royal, vintage
+  
   // Visibility
   isPublic        Boolean  @default(false)
 

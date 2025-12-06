@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Clock, Play, Pause, QrCode, AlertCircle } from 'lucide-react';
+import { Share2, Clock, Play, Pause, QrCode, AlertCircle, ArrowLeft, PenLine, X, UserPlus } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { WaxSeal } from '@/components/WaxSeal';
@@ -22,6 +24,8 @@ export default function LetterView({ letter }: LetterViewProps) {
   const { t, language } = useI18n();
   const { getDescription } = useAgingDescription();
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { timeLeft, isExpired, formatted } = useCountdown(letter.unlockAt);
   const [isOpened, setIsOpened] = useState(false);
   const [showContent, setShowContent] = useState(false);
@@ -29,9 +33,32 @@ export default function LetterView({ letter }: LetterViewProps) {
   const [showQRCode, setShowQRCode] = useState(false);
   const [reactions, setReactions] = useState(letter.reactions || []);
   const [openError, setOpenError] = useState<string | null>(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showSentSuccess, setShowSentSuccess] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const isLocked = !isExpired;
+  const isCreated = searchParams.get('created') === 'true';
+  const isSender = session?.user?.id === letter.senderId;
+
+  // Show welcome message for first-time recipients
+  useEffect(() => {
+    if (!session && !isSender && !isCreated) {
+      const visitedKey = `pisma-visited-${letter.id}`;
+      const hasVisited = localStorage.getItem(visitedKey);
+      if (!hasVisited) {
+        setShowWelcome(true);
+        localStorage.setItem(visitedKey, 'true');
+      }
+    }
+  }, [session, isSender, isCreated, letter.id]);
+
+  // Show success message for sender
+  useEffect(() => {
+    if (isCreated && isSender) {
+      setShowSentSuccess(true);
+    }
+  }, [isCreated, isSender]);
 
   const handleOpen = useCallback(async () => {
     if (isLocked) return;
@@ -106,6 +133,153 @@ export default function LetterView({ letter }: LetterViewProps) {
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4 overflow-hidden relative perspective-1000">
       {/* Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-900 via-black to-black z-0" />
+
+      {/* Back/Navigation Buttons - For sender after creation */}
+      {(isSender || session) && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed top-4 left-4 z-50 flex gap-2"
+        >
+          <Link href="/inbox">
+            <Button variant="ghost" size="sm" className="gap-2 bg-white/5 backdrop-blur-sm hover:bg-white/10">
+              <ArrowLeft className="w-4 h-4" />
+              {t.letter.backToInbox}
+            </Button>
+          </Link>
+          {isSender && (
+            <Link href="/write">
+              <Button variant="ghost" size="sm" className="gap-2 bg-white/5 backdrop-blur-sm hover:bg-white/10">
+                <PenLine className="w-4 h-4" />
+                {t.letter.writeAnother}
+              </Button>
+            </Link>
+          )}
+        </motion.div>
+      )}
+
+      {/* Success Modal - Shown to sender after creation */}
+      <AnimatePresence>
+        {showSentSuccess && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 border border-green-500/30 rounded-2xl p-8 max-w-md text-center space-y-6"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', delay: 0.2 }}
+                className="w-20 h-20 mx-auto rounded-full bg-green-500/20 flex items-center justify-center"
+              >
+                <span className="text-5xl">✉️</span>
+              </motion.div>
+              
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-white mb-2">
+                  {t.letter.letterSent}
+                </h2>
+                <p className="text-green-200/80">
+                  {t.letter.letterSentDesc}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Button
+                  onClick={() => setShowSentSuccess(false)}
+                  className="w-full bg-white text-black hover:bg-gray-200"
+                >
+                  {t.common.close}
+                </Button>
+                <div className="flex gap-2">
+                  <Link href="/inbox" className="flex-1">
+                    <Button variant="outline" className="w-full border-green-500/30 text-green-300 hover:bg-green-500/10">
+                      {t.letter.backToInbox}
+                    </Button>
+                  </Link>
+                  <Link href="/write" className="flex-1">
+                    <Button variant="outline" className="w-full border-green-500/30 text-green-300 hover:bg-green-500/10">
+                      {t.letter.writeAnother}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Welcome Modal - Shown to first-time recipients */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border border-purple-500/30 rounded-2xl p-8 max-w-md text-center space-y-6"
+            >
+              <button
+                onClick={() => setShowWelcome(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-white/60" />
+              </button>
+
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: 'spring', delay: 0.2 }}
+                className="w-20 h-20 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center"
+              >
+                <span className="text-5xl">💌</span>
+              </motion.div>
+              
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-white mb-2">
+                  {t.letter.welcomeRecipient}
+                </h2>
+                <p className="text-purple-200/80">
+                  {t.letter.welcomeRecipientDesc}
+                </p>
+              </div>
+
+              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                <p className="text-sm text-gray-400 mb-1">{t.letter.firstVisit}</p>
+                <p className="text-white/80 text-sm">{t.letter.createAccount}</p>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <Link href="/auth/register" className="w-full">
+                  <Button className="w-full gap-2 bg-purple-500 hover:bg-purple-600">
+                    <UserPlus className="w-4 h-4" />
+                    {t.nav.register}
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowWelcome(false)}
+                  className="text-white/60 hover:text-white"
+                >
+                  {t.letter.viewAsGuest}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Audio element */}
       {letter.audioUrl && (
@@ -258,7 +432,13 @@ export default function LetterView({ letter }: LetterViewProps) {
                   <div className="flex justify-between items-start mb-8 border-b border-current/20 pb-4">
                     <div>
                       {letter.senderName && (
-                        <p className="font-serif text-sm mb-1">{t.letter.from}: <strong>{letter.senderName}</strong></p>
+                        <p className="font-serif text-sm mb-1">
+                          {t.letter.from}: <strong>
+                            {letter.isAnonymous && !letter.openedAt 
+                              ? '🎭 ???' 
+                              : letter.senderName}
+                          </strong>
+                        </p>
                       )}
                       {letter.recipientName && (
                         <p className="font-serif text-sm">{t.letter.to}: <strong>{letter.recipientName}</strong></p>

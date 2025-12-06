@@ -16,6 +16,8 @@ import { ImageDropZone } from '@/components/ImageDropZone';
 import { EnhancedTextarea, InputWithValidation } from '@/components/FormElements';
 import { UploadProgress, SealingAnimation } from '@/components/ProgressIndicators';
 import { LetterPreviewModal } from '@/components/LetterPreviewModal';
+import { FullLetterPreview } from '@/components/FullLetterPreview';
+import { LetterStyleSelector } from '@/components/LetterStyleSelector';
 import { NewYearCountdown, NewYearConfetti } from '@/components/NewYearEffects';
 import { useI18n } from '@/lib/i18n';
 
@@ -64,6 +66,10 @@ export default function WritePage() {
 
   // Aging
   const [agingEnabled, setAgingEnabled] = useState(true);
+
+  // Anonymity & Letter Style
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [letterStyle, setLetterStyle] = useState('minimal');
 
   // UI state
   const [isUploading, setIsUploading] = useState(false);
@@ -163,6 +169,8 @@ export default function WritePage() {
     formData.append('isRecurring', isRecurring.toString());
     formData.append('recurringType', recurringType || '');
     formData.append('isPublic', isPublic.toString());
+    formData.append('isAnonymous', isAnonymous.toString());
+    formData.append('letterStyle', letterStyle);
     formData.append('language', language);
     
     if (audioBlob) {
@@ -408,6 +416,54 @@ export default function WritePage() {
             onInitialsChange={setSealInitials}
           />
 
+          {/* Letter Style & Paper Selection */}
+          <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
+            <LetterStyleSelector
+              selectedPaper={paper}
+              selectedStyle={letterStyle}
+              onPaperChange={setPaper}
+              onStyleChange={setLetterStyle}
+            />
+          </div>
+
+          {/* Anonymity Option */}
+          <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
+            <label className="flex items-center justify-between cursor-pointer group">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span className="text-xl">🎭</span>
+                </div>
+                <div>
+                  <p className="font-medium text-white">
+                    {language === 'sr' ? 'Anonimno do otvaranja' : 'Anonymous until opened'}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {language === 'sr' 
+                      ? 'Primalac neće vidjeti tvoje ime dok ne otvori pismo' 
+                      : 'Recipient won\'t see your name until they open the letter'}
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={isAnonymous}
+                  onChange={(e) => setIsAnonymous(e.target.checked)}
+                  className="sr-only"
+                />
+                <div className={`w-14 h-8 rounded-full transition-colors ${
+                  isAnonymous ? 'bg-purple-500' : 'bg-white/10'
+                }`}>
+                  <motion.div 
+                    animate={{ x: isAnonymous ? 24 : 4 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    className="absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg"
+                  />
+                </div>
+              </div>
+            </label>
+          </div>
+
           {/* Digital Message */}
           <div className="bg-white/5 p-6 rounded-2xl border border-white/10 backdrop-blur-md">
             <EnhancedTextarea
@@ -504,8 +560,8 @@ export default function WritePage() {
 
       </div>
 
-      {/* Letter Preview Modal */}
-      <LetterPreviewModal
+      {/* Full Letter Preview - Shows exactly how recipient will see it */}
+      <FullLetterPreview
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
         onConfirm={handleSubmit}
@@ -525,6 +581,8 @@ export default function WritePage() {
           deliveryType,
           hasAudio: !!audioBlob,
           isPublic,
+          isAnonymous,
+          letterStyle,
         }}
       />
     </main>

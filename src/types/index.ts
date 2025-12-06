@@ -2,11 +2,12 @@
 // Letter Types
 // ============================================
 
-export type PaperType = 'classic' | 'vintage' | 'dark';
+export type PaperType = 'classic' | 'vintage' | 'dark' | 'parchment' | 'elegant' | 'midnight' | 'rose' | 'forest';
 export type SealDesign = 'classic' | 'heart' | 'star' | 'crown' | 'letter';
-export type TemplateType = 'love' | 'future-self' | 'greeting' | 'thank-you';
+export type TemplateType = 'love' | 'future-self' | 'greeting' | 'thank-you' | 'new-year';
 export type LetterStatus = 'sealed' | 'delivered' | 'opened';
 export type RecurringType = 'yearly' | 'monthly';
+export type LetterStyle = 'minimal' | 'elegant' | 'romantic' | 'royal' | 'vintage';
 
 export interface Letter {
   id: string;
@@ -39,6 +40,9 @@ export interface Letter {
   
   // Features
   agingEnabled: boolean;
+  isAnonymous: boolean;
+  letterStyle: LetterStyle;
+  isPublic: boolean;
   qrCodeUrl?: string | null;
   
   // Archive flags

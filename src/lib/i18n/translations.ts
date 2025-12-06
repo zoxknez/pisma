@@ -210,6 +210,16 @@ export const translations = {
       openedOn: 'Otvoreno',
       mysteryAwaits: 'Misterija čeka da bude otkrivena...',
       clickToReveal: 'Klikni da otkriješ pošiljaoca',
+      // New keys
+      backToInbox: 'Nazad u sanduče',
+      writeAnother: 'Napiši još jedno',
+      letterSent: 'Pismo je poslato!',
+      letterSentDesc: 'Tvoje pismo je na putu do primaoca. Biće dostavljeno u zakazano vreme.',
+      welcomeRecipient: 'Dobrodošao!',
+      welcomeRecipientDesc: 'Neko ti je poslao posebno pismo. Sačekaj da se otključa da ga pročitaš.',
+      firstVisit: 'Ovo je tvoja prva poseta',
+      createAccount: 'Napravi nalog da sačuvaš pisma',
+      viewAsGuest: 'Nastavi kao gost',
     },
 
     aging: {
@@ -686,6 +696,16 @@ export const translations = {
       openedOn: 'Opened on',
       mysteryAwaits: 'A mystery awaits to be revealed...',
       clickToReveal: 'Click to reveal the sender',
+      // New keys
+      backToInbox: 'Back to inbox',
+      writeAnother: 'Write another',
+      letterSent: 'Letter sent!',
+      letterSentDesc: 'Your letter is on its way to the recipient. It will be delivered at the scheduled time.',
+      welcomeRecipient: 'Welcome!',
+      welcomeRecipientDesc: 'Someone sent you a special letter. Wait for it to unlock to read it.',
+      firstVisit: 'This is your first visit',
+      createAccount: 'Create an account to save letters',
+      viewAsGuest: 'Continue as guest',
     },
 
     aging: {

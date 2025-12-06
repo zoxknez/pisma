@@ -99,6 +99,8 @@ export async function POST(request: Request) {
       duration: unlockDuration,
       language: formData.get('language'),
       isPublic: formData.get('isPublic'),
+      isAnonymous: formData.get('isAnonymous'),
+      letterStyle: formData.get('letterStyle'),
     };
 
     const validationResult = createLetterSchema.safeParse(letterData);
@@ -209,6 +211,8 @@ export async function POST(request: Request) {
         audioUrl,
         senderId: user?.id || null,
         isPublic: validData.isPublic,
+        isAnonymous: validData.isAnonymous ?? false,
+        letterStyle: validData.letterStyle ?? 'minimal',
       },
     });
 
