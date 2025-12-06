@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Send, Loader2, X, User, Mail, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Upload, Send, Loader2, X, User, Mail, ArrowLeft, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';

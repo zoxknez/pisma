@@ -10,7 +10,7 @@ import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { Navbar } from "@/components/Navbar";
 import { 
   Clock, Palette, Mic, Heart, Shield, Mail, 
-  ArrowRight, Sparkles 
+  ArrowRight, Sparkles, ChevronDown 
 } from "lucide-react";
 
 // Feature card component
