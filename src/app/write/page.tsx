@@ -172,9 +172,16 @@ export default function WritePage() {
     formData.append('isAnonymous', isAnonymous.toString());
     formData.append('letterStyle', letterStyle);
     formData.append('language', language);
+
+    if (deliveryType === 'scheduled' && scheduledDate) {
+      formData.append('scheduledDate', scheduledDate.toISOString());
+    }
     
     if (audioBlob) {
-      formData.append('audio', audioBlob, 'voice-message.webm');
+      const extension = audioBlob.type.includes('mp4') ? 'm4a' : 
+                       audioBlob.type.includes('aac') ? 'aac' : 
+                       audioBlob.type.includes('ogg') ? 'ogg' : 'webm';
+      formData.append('audio', audioBlob, `voice-message.${extension}`);
     }
 
     try {

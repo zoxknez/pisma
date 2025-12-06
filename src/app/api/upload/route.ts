@@ -97,6 +97,7 @@ export async function POST(request: Request) {
       isRecurring: formData.get('isRecurring'),
       recurringType: formData.get('recurringType') || null,
       duration: unlockDuration,
+      scheduledDate: formData.get('scheduledDate'),
       language: formData.get('language'),
       isPublic: formData.get('isPublic'),
       isAnonymous: formData.get('isAnonymous'),
@@ -178,6 +179,11 @@ export async function POST(request: Request) {
 
     // Calculate unlock time
     const unlockAt = new Date(Date.now() + validData.duration * 60 * 60 * 1000);
+    
+    // Handle scheduled delivery
+    const scheduledDate = validData.scheduledDate ? new Date(validData.scheduledDate) : null;
+    const isScheduled = scheduledDate && scheduledDate.getTime() > Date.now();
+    const status = isScheduled ? 'scheduled' : 'sealed';
 
     // Find recipient user if email provided
     let recipientId: string | null = null;
@@ -194,7 +200,8 @@ export async function POST(request: Request) {
       data: {
         imageUrl: blobUrl,
         unlockAt,
-        status: 'sealed',
+        scheduledDate,
+        status,
         paperType: validData.paperType,
         message: sanitizedMessage,
         sealColor: validData.sealColor,
@@ -213,11 +220,13 @@ export async function POST(request: Request) {
         isPublic: validData.isPublic,
         isAnonymous: validData.isAnonymous ?? false,
         letterStyle: validData.letterStyle ?? 'minimal',
+        language: validData.language,
       },
     });
 
     // Send email notification (don't await, fire and forget)
-    if (validData.recipientEmail) {
+    // Only send if NOT scheduled for later
+    if (validData.recipientEmail && !isScheduled) {
       sendLetterNotification({
         recipientEmail: validData.recipientEmail,
         senderName: sanitizedSenderName,

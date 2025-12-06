@@ -7,10 +7,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { PlatformStats } from "@/components/StatsDisplay";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
-import { 
-  ArrowRight, Sparkles, Inbox, Mail, Clock, Heart, 
-  Shield, Palette, Mic, ChevronDown, Globe 
-} from "lucide-react";
+import { Navbar } from "@/components/Navbar";
 
 // Feature card component
 interface FeatureCardProps {
@@ -98,53 +95,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center relative overflow-hidden bg-black selection:bg-white selection:text-black">
       
-      {/* Top Navigation */}
-      <motion.nav 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md bg-black/50 border-b border-white/5"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="text-2xl font-serif font-bold text-white">
-            PISMA
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <Link href="/community">
-              <Button variant="ghost" className="text-gray-400 hover:text-white gap-2">
-                <Globe className="w-4 h-4" /> {t.nav.community}
-              </Button>
-            </Link>
-            {session ? (
-              <>
-                <Link href="/write">
-                  <Button variant="ghost" className="text-gray-400 hover:text-white gap-2">
-                    <Mail className="w-4 h-4" /> {t.nav.write}
-                  </Button>
-                </Link>
-                <Link href="/inbox">
-                  <Button variant="outline" className="gap-2 border-white/20 hover:bg-white/10 text-white">
-                    <Inbox className="w-4 h-4" /> {t.nav.inbox}
-                  </Button>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="ghost" className="text-gray-400 hover:text-white">
-                    {t.nav.login}
-                  </Button>
-                </Link>
-                <Link href="/auth/register">
-                  <Button variant="outline" className="border-white/20 hover:bg-white/10 text-white">
-                    {t.nav.register}
-                  </Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </motion.nav>
+      <Navbar />
       
       {/* Hero Section */}
       <motion.section 
@@ -174,7 +125,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="text-7xl md:text-9xl font-serif font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500"
+            className="text-5xl sm:text-7xl md:text-9xl font-serif font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-gray-500 px-4"
           >
             {t.home.title}
           </motion.h1>
@@ -183,9 +134,9 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.4 }}
-            className="text-xl md:text-2xl text-gray-400 max-w-2xl font-light leading-relaxed"
+            className="text-lg sm:text-xl md:text-2xl text-gray-400 max-w-2xl font-light leading-relaxed px-4"
           >
-            {t.home.subtitle} <br/>
+            {t.home.subtitle} <br className="hidden sm:block"/>
             <span className="text-gray-500">{t.home.subtitleSecond}</span>
           </motion.p>
 
@@ -294,7 +245,7 @@ export default function Home() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-3xl p-12 text-center border border-amber-500/20 overflow-hidden"
+          className="relative bg-gradient-to-br from-amber-900/30 to-orange-900/30 rounded-3xl p-6 md:p-12 text-center border border-amber-500/20 overflow-hidden"
         >
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl" />

@@ -39,14 +39,32 @@ export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
       // Setup audio context for visualization
-      const audioContext = new AudioContext();
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContextClass();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 32;
       source.connect(analyser);
       analyserRef.current = analyser;
 
-      const mediaRecorder = new MediaRecorder(stream);
+      // Determine supported MIME type
+      const mimeTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/mp4',
+        'audio/aac',
+        'audio/ogg;codecs=opus',
+      ];
+      
+      let selectedMimeType = '';
+      for (const type of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(type)) {
+          selectedMimeType = type;
+          break;
+        }
+      }
+
+      const mediaRecorder = new MediaRecorder(stream, selectedMimeType ? { mimeType: selectedMimeType } : undefined);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
@@ -57,7 +75,8 @@ export function AudioRecorder({ onRecordingComplete, existingAudioUrl, onDelete 
       };
 
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const type = mediaRecorder.mimeType || selectedMimeType || 'audio/webm';
+        const audioBlob = new Blob(chunksRef.current, { type });
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
         onRecordingComplete(audioBlob);

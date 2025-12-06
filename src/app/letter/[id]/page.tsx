@@ -8,6 +8,36 @@ interface ReactionWithUser {
   user: { name: string | null };
 }
 
+import { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const letter = await prisma.letter.findUnique({
+    where: { id },
+    select: { senderName: true, status: true }
+  });
+
+  if (!letter) {
+    return {
+      title: 'Letter Not Found',
+    };
+  }
+
+  const sender = letter.senderName || 'Someone';
+  const title = letter.status === 'sealed' 
+    ? `A sealed letter from ${sender}`
+    : `A letter from ${sender}`;
+
+  return {
+    title: `${title} | Pisma`,
+    description: 'You have received a digital letter. Open it to read the message.',
+    openGraph: {
+      title: `${title} | Pisma`,
+      description: 'You have received a digital letter. Open it to read the message.',
+    },
+  };
+}
+
 export default async function LetterPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const letter = await prisma.letter.findUnique({

@@ -200,7 +200,7 @@ export function NewYearBanner() {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
-      className="relative bg-gradient-to-r from-yellow-600 via-orange-500 to-red-600 text-white py-3 px-4 text-center overflow-hidden"
+      className="relative bg-gradient-to-r from-yellow-900/90 via-red-900/90 to-purple-900/90 backdrop-blur-md border-b border-white/10 text-white py-3 px-4 overflow-hidden z-40"
     >
       {/* Animated sparkles */}
       <div className="absolute inset-0 pointer-events-none">
@@ -229,18 +229,29 @@ export function NewYearBanner() {
         ))}
       </div>
 
-      <div className="relative z-10 flex items-center justify-center gap-4">
-        <span className="text-2xl">🎆</span>
-        <span className="font-serif font-bold">
-          New Year Special! Send wishes that arrive at midnight 🎊
-        </span>
-        <span className="text-2xl">🎇</span>
-        <button
-          onClick={() => setIsVisible(false)}
-          className="ml-4 text-white/70 hover:text-white transition-colors"
-        >
-          ✕
-        </button>
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-center sm:text-left">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🎆</span>
+          <span className="font-serif font-medium text-sm sm:text-base">
+            New Year Special! Send wishes that arrive at midnight 🎊
+          </span>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <a 
+            href="/write?template=new-year" 
+            className="px-4 py-1.5 bg-white text-black text-xs sm:text-sm font-bold rounded-full hover:bg-yellow-100 transition-colors shadow-lg shadow-yellow-500/20"
+          >
+            Write Now
+          </a>
+          <button
+            onClick={() => setIsVisible(false)}
+            className="text-white/50 hover:text-white transition-colors p-1"
+            aria-label="Close banner"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     </motion.div>
   );

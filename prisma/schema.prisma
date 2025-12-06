@@ -98,6 +98,7 @@ model Letter {
   // Anonymity & Style
   isAnonymous     Boolean  @default(false)  // Hide sender until opened
   letterStyle     String   @default("minimal")  // minimal, elegant, romantic, royal, vintage
+  language        String   @default("en")       // en, sr
   
   // Visibility
   isPublic        Boolean  @default(false)
