@@ -13,12 +13,8 @@ export const registerSchema = z.object({
     .transform(val => val.toLowerCase().trim()),
   password: z
     .string()
-    .min(8, 'Password must be at least 8 characters')
-    .max(100, 'Password too long')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-    ),
+    .min(4, 'Password must be at least 4 characters')
+    .max(100, 'Password too long'),
   name: z
     .string()
     .min(1, 'Name is required')
