@@ -239,7 +239,7 @@ export default function WritePage() {
   return (
     <main className="min-h-screen bg-black text-white p-6 relative overflow-hidden">
       {/* New Year Confetti on successful send */}
-      {showNewYearConfetti && <NewYearConfetti />}
+      <NewYearConfetti isActive={showNewYearConfetti} />
       
       {/* Sealing Animation Overlay */}
       <AnimatePresence>
