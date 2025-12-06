@@ -8,6 +8,10 @@ import { Button } from "@/components/ui/button";
 import { PlatformStats } from "@/components/StatsDisplay";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { Navbar } from "@/components/Navbar";
+import { 
+  Clock, Palette, Mic, Heart, Shield, Mail, 
+  ArrowRight, Sparkles 
+} from "lucide-react";
 
 // Feature card component
 interface FeatureCardProps {
