@@ -593,7 +593,7 @@ export const translations = {
       aging: 'Aging Effect',
       agingEnabled: 'Enable paper aging effect',
       tips: {
-        title: 'Tips for better photo',
+        title: 'Tips for a better photo',
         lighting: 'Use good lighting when photographing',
         flat: 'Keep the paper flat and wrinkle-free',
         legible: 'Ensure all text is visible and legible',
