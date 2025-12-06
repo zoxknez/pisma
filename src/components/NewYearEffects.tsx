@@ -200,7 +200,7 @@ export function NewYearBanner() {
       initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
-      className="relative bg-gradient-to-r from-yellow-900/90 via-red-900/90 to-purple-900/90 backdrop-blur-md border-b border-white/10 text-white py-3 px-4 overflow-hidden z-40"
+      className="relative mt-20 md:mt-24 bg-gradient-to-r from-yellow-900/90 via-red-900/90 to-purple-900/90 backdrop-blur-md border-b border-white/10 text-white py-3 px-4 overflow-hidden z-40"
     >
       {/* Animated sparkles */}
       <div className="absolute inset-0 pointer-events-none">
